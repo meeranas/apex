@@ -41,27 +41,26 @@ class IssuerResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->label('Full Name'),
-                        
+
                         Forms\Components\DatePicker::make('id_expiration')
                             ->label('ID Expiration Date')
                             ->nullable(),
-                        
+
                         Forms\Components\FileUpload::make('photo')
                             ->label('Photo')
                             ->image()
                             ->directory('issuer-photos')
                             ->nullable(),
-                        
+
                         Forms\Components\TextInput::make('password')
                             ->password()
                             ->required()
                             ->maxLength(255)
-                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                            ->dehydrated(fn ($state) => filled($state))
-                            ->required(fn (string $context): bool => $context === 'create')
+                            ->dehydrated(fn($state) => filled($state))
+                            ->required(fn(string $context): bool => $context === 'create')
                             ->label('Password'),
                     ])->columns(2),
-                
+
                 Forms\Components\Section::make('User Account')
                     ->schema([
                         Forms\Components\TextInput::make('user_email')
@@ -69,13 +68,13 @@ class IssuerResource extends Resource
                             ->required()
                             ->label('Email')
                             ->unique(User::class, 'email', ignoreRecord: true),
-                        
+
                         Forms\Components\TextInput::make('user_name')
                             ->required()
                             ->maxLength(255)
                             ->label('Name'),
                     ])->columns(2),
-                
+
                 Forms\Components\Section::make('Access Permissions')
                     ->schema([
                         Forms\Components\Select::make('can_view_issuers')
@@ -96,30 +95,30 @@ class IssuerResource extends Resource
                 Tables\Columns\ImageColumn::make('photo')
                     ->label('Photo')
                     ->circular()
-                    ->defaultImageUrl(url('/images/default-avatar.png')),
-                
+                    ->defaultImageUrl('data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#e5e7eb"/><circle cx="50" cy="35" r="15" fill="#9ca3af"/><path d="M25 75c0-13.8 11.2-25 25-25s25 11.2 25 25" fill="#9ca3af"/></svg>')),
+
                 Tables\Columns\TextColumn::make('full_name')
                     ->label('Full Name')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('user.email')
                     ->label('Email')
                     ->searchable()
                     ->sortable(),
-                
+
                 Tables\Columns\TextColumn::make('id_expiration')
                     ->label('ID Expiration')
                     ->date()
                     ->sortable()
                     ->badge()
-                    ->color(fn ($state) => $state && $state->isPast() ? 'danger' : 'success'),
-                
+                    ->color(fn($state) => $state && $state->isPast() ? 'danger' : 'success'),
+
                 Tables\Columns\TextColumn::make('canViewIssuers.full_name')
                     ->label('Can View')
                     ->badge()
                     ->separator(', '),
-                
+
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created At')
                     ->dateTime()
@@ -129,7 +128,7 @@ class IssuerResource extends Resource
             ->filters([
                 Tables\Filters\Filter::make('expired_ids')
                     ->label('Expired IDs')
-                    ->query(fn (Builder $query): Builder => $query->where('id_expiration', '<', now())),
+                    ->query(fn(Builder $query): Builder => $query->where('id_expiration', '<', now())),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
