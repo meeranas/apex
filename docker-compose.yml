@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: apex-dashboard-app
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./:/var/www
+      - ./docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - apex-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: apex-dashboard-nginx
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - apex-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: apex-dashboard-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: apex_dashboard
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: apex_user
+      MYSQL_PASSWORD: apex_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - apex-network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: apex-dashboard-phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root
+    depends_on:
+      - mysql
+    networks:
+      - apex-network
+
+volumes:
+  mysql_data:
+
+networks:
+  apex-network:
+    driver: bridge

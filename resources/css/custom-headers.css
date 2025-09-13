@@ -1,0 +1,13 @@
+/* Custom table header styling for bilingual headers */
+.filament-table th {
+    white-space: pre-line !important;
+    line-height: 1.2 !important;
+    vertical-align: top !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
+}
+
+.filament-table th .filament-tables-header-cell-label {
+    white-space: pre-line !important;
+    line-height: 1.2 !important;
+}

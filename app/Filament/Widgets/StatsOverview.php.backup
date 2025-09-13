@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Filament\Widgets;
+
+use App\Models\Customer;
+use App\Models\Invoice;
+use App\Models\Transaction;
+use Filament\Widgets\StatsOverviewWidget as BaseWidget;
+use Filament\Widgets\StatsOverviewWidget\Stat;
+
+class StatsOverview extends BaseWidget
+{
+    protected function getStats(): array
+    {
+        return [
+            Stat::make('Total Customers / إجمالي العملاء', Customer::count())
+                ->description('Registered Customers / عدد العملاء المسجلين')
+                ->descriptionIcon('heroicon-m-users')
+                ->color('success'),
+
+            Stat::make('Total Invoices / إجمالي الفواتير', Invoice::count())
+                ->description('All Invoices / جميع الفواتير')
+                ->descriptionIcon('heroicon-m-document-text')
+                ->color('info'),
+
+            Stat::make('Total Transactions / إجمالي العمليات', Transaction::count())
+                ->description('All Financial Transactions / جميع العمليات المالية')
+                ->descriptionIcon('heroicon-m-currency-dollar')
+                ->color('warning'),
+
+            // Stat::make('إجمالي المبيعات / Total Sales', 'SAR ' . number_format(Invoice::sum('total_amount'), 2))
+            //     ->description('قيمة المبيعات الإجمالية / Total Sales Value')
+            //     ->descriptionIcon('heroicon-m-chart-bar')
+            //     ->color('success'),
+
+            // Stat::make('الفواتير المتأخرة / Overdue Invoices', Invoice::where('due_date', '<', now())->count())
+            //     ->description('فواتير متأخرة السداد / Overdue Invoices')
+            //     ->descriptionIcon('heroicon-m-exclamation-triangle')
+            //     ->color('danger'),
+
+            // Stat::make('متوسط الرصيد / Average Balance', 'SAR ' . number_format(Customer::avg('current_balance'), 2))
+            //     ->description('متوسط رصيد العملاء / Average Customer Balance')
+            //     ->descriptionIcon('heroicon-m-banknotes')
+            //     ->color('info'),
+        ];
+    }
+}

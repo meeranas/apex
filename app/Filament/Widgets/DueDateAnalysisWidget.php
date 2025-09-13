@@ -1,0 +1,204 @@
+<?php
+
+namespace App\Filament\Widgets;
+
+use App\Models\Customer;
+use Filament\Widgets\Widget;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+
+class DueDateAnalysisWidget extends Widget
+{
+    protected static string $view = 'filament.widgets.due-date-analysis-widget';
+
+    protected int|string|array $columnSpan = 'full';
+
+    public function getHeading(): string
+    {
+        $user = Auth::user();
+        $isAdmin = $user && $user->hasRole('admin');
+        
+        return $isAdmin ? 'Due Date Analysis / تحليل تواريخ الاستحقاق' : 'Your Due Date Analysis / تحليل تواريخ استحقاقك';
+    }
+
+    public function getDescription(): string
+    {
+        $user = Auth::user();
+        $isAdmin = $user && $user->hasRole('admin');
+        
+        return $isAdmin 
+            ? 'Comprehensive analysis of invoice status and due dates / تحليل شامل لحالة الفواتير وتواريخ الاستحقاق'
+            : 'Analysis of your invoice status and due dates / تحليل حالة فواتيرك وتواريخ الاستحقاق';
+    }
+
+    /**
+     * Get overdue customers count
+     */
+    public function getOverdueCustomersCount()
+    {
+        return $this->getCustomerReports()->filter(function ($report) {
+            return $report['due_date_status']['status'] === 'overdue';
+        })->count();
+    }
+
+    /**
+     * Get due soon customers count
+     */
+    public function getDueSoonCustomersCount()
+    {
+        return $this->getCustomerReports()->filter(function ($report) {
+            return $report['due_date_status']['status'] === 'due_soon';
+        })->count();
+    }
+
+    /**
+     * Get on time customers count
+     */
+    public function getOnTimeCustomersCount()
+    {
+        return $this->getCustomerReports()->filter(function ($report) {
+            return $report['due_date_status']['status'] === 'current';
+        })->count();
+    }
+
+    /**
+     * Get no invoice customers count
+     */
+    public function getNoInvoiceCustomersCount()
+    {
+        return $this->getCustomerReports()->filter(function ($report) {
+            return $report['due_date_status']['status'] === 'no_invoice';
+        })->count();
+    }
+
+    /**
+     * Get detailed customer reports with all required information
+     */
+    public function getCustomerReports()
+    {
+        $user = Auth::user();
+        $isAdmin = $user && $user->hasRole('admin');
+        
+        $customerQuery = Customer::with([
+            'invoices' => function ($query) {
+                $query->orderBy('due_date', 'asc');
+            },
+            'issuer'
+        ]);
+
+        // Apply role-based filtering
+        if (!$isAdmin && $user && $user->hasRole('issuer') && $user->issuer) {
+            $issuer = $user->issuer;
+            $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
+            $customerQuery->whereIn('issuer_id', $viewableIssuerIds);
+        }
+
+        return $customerQuery->get()
+            ->map(function ($customer) {
+                $latestInvoice = $customer->invoices->first();
+
+                return [
+                    'customer_name' => $customer->customer_name,
+                    'city' => $customer->city,
+                    'issuer' => $customer->issuer ? $customer->issuer->full_name : 'N/A',
+                    'current_balance' => $customer->current_balance,
+                    'payment_percentage' => $customer->calculated_payment_percentage,
+                    'due_date' => $latestInvoice ? $latestInvoice->due_date : null,
+                    'due_date_status' => $this->getDueDateStatus($latestInvoice ? $latestInvoice->due_date : null),
+                ];
+            });
+    }
+
+    /**
+     * Get due date status based on current date
+     */
+    private function getDueDateStatus($dueDate)
+    {
+        if (!$dueDate) {
+            return [
+                'status' => 'no_invoice',
+                'color' => 'gray',
+                'text' => 'No Invoice / لا توجد فاتورة'
+            ];
+        }
+
+        $now = Carbon::now();
+        $due = Carbon::parse($dueDate);
+
+        if ($due->isPast()) {
+            return [
+                'status' => 'overdue',
+                'color' => 'danger',
+                'text' => 'Overdue / متأخر'
+            ];
+        } elseif ($due->diffInDays($now) <= 7) {
+            return [
+                'status' => 'due_soon',
+                'color' => 'warning',
+                'text' => 'Due Soon / قريب الاستحقاق'
+            ];
+        } else {
+            return [
+                'status' => 'current',
+                'color' => 'success',
+                'text' => 'Current / جاري'
+            ];
+        }
+    }
+
+    /**
+     * Get status color for due date
+     */
+    public function getDueDateStatusColor($status)
+    {
+        return match ($status) {
+            'overdue' => 'danger',
+            'due_soon' => 'warning',
+            'current' => 'success',
+            'no_invoice' => 'gray',
+            default => 'gray',
+        };
+    }
+
+    /**
+     * Get status text for due date
+     */
+    public function getDueDateStatusText($status)
+    {
+        return match ($status) {
+            'overdue' => 'Overdue / متأخر',
+            'due_soon' => 'Due Soon / قريب الاستحقاق',
+            'current' => 'Current / جاري',
+            'no_invoice' => 'No Invoice / لا توجد فاتورة',
+            default => 'Unknown / غير معروف',
+        };
+    }
+
+    /**
+     * Get payment percentage color
+     */
+    public function getPaymentPercentageColor($percentage)
+    {
+        if ($percentage >= 80) {
+            return 'success';
+        } elseif ($percentage >= 50) {
+            return 'warning';
+        } else {
+            return 'danger';
+        }
+    }
+
+    /**
+     * Get balance color
+     */
+    public function getBalanceColor($balance)
+    {
+        if ($balance < 0) {
+            return 'success'; // Customer has credit
+        } elseif ($balance > 1000) {
+            return 'danger'; // High outstanding balance
+        } else {
+            return 'warning'; // Moderate balance
+        }
+    }
+}
