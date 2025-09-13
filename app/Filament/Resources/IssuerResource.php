@@ -67,7 +67,17 @@ class IssuerResource extends Resource
                             ->email()
                             ->required()
                             ->label('Email')
-                            ->unique(User::class, 'email', ignoreRecord: true),
+                            ->unique(
+                                table: User::class,
+                                column: 'email',
+                                ignoreRecord: true,
+                                modifyRuleUsing: function ($rule, $livewire) {
+                                    if ($livewire instanceof \Filament\Resources\Pages\EditRecord && $livewire->record->user) {
+                                        return $rule->ignore($livewire->record->user->id);
+                                    }
+                                    return $rule;
+                                }
+                            ),
 
                         Forms\Components\TextInput::make('user_name')
                             ->required()
