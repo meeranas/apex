@@ -102,6 +102,13 @@ class IssuerResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('row_number')
+                    ->label('#')
+                    ->getStateUsing(function ($record, $rowLoop) {
+                        return $rowLoop->iteration;
+                    })
+                    ->width('60px')
+                    ->alignCenter(),
                 Tables\Columns\ImageColumn::make('photo')
                     ->label('Photo')
                     ->circular()

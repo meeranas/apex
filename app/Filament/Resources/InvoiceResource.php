@@ -6,6 +6,7 @@ use App\Filament\Resources\InvoiceResource\Pages;
 use App\Models\Invoice;
 use App\Models\Customer;
 use App\Models\Issuer;
+use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -33,23 +34,6 @@ class InvoiceResource extends Resource
             ->schema([
                 Forms\Components\Section::make('Invoice Information / معلومات الفاتورة')
                     ->schema([
-                        Forms\Components\TextInput::make('invoice_number')
-                            ->label('Invoice ID / رقم الفاتورة')
-                            ->required()
-                            ->default(function () {
-                                do {
-                                    // Format: INV-YYYYMMDD-HHMMSS-XXX (where XXX is random 3 digits)
-                                    $timestamp = now()->format('Ymd-His');
-                                    $randomSuffix = str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT);
-                                    $invoiceNumber = 'INV-' . $timestamp . '-' . $randomSuffix;
-                                } while (Invoice::where('invoice_number', $invoiceNumber)->exists());
-
-                                return $invoiceNumber;
-                            })
-                            ->disabled()
-                            ->dehydrated()
-                            ->maxLength(255),
-
                         Forms\Components\TextInput::make('goods_delivery_document_number')
                             ->label('Delivery Doc # / رقم سند التسليم')
                             ->required()
@@ -71,23 +55,22 @@ class InvoiceResource extends Resource
                                         if ($state) {
                                             $customer = Customer::find($state);
                                             if ($customer) {
-                                                $set('customer_city', $customer->city);
-                                                $set('customer_name', $customer->customer_name);
+                                                $set('customer_city_display', $customer->city ? $customer->city->name : '');
                                             }
                                         }
                                     })
                                     ->options(function () {
                                         $user = Auth::user();
-                                        
+
                                         if (!$user) {
                                             return [];
                                         }
-                                        
+
                                         // Admin can see all customers
                                         if ($user->hasRole('admin')) {
                                             return Customer::pluck('customer_name', 'id')->toArray();
                                         }
-                                        
+
                                         // Issuer can only see their own customers and assigned customers
                                         if ($user->hasRole('issuer') && $user->issuer) {
                                             $issuer = $user->issuer;
@@ -96,18 +79,18 @@ class InvoiceResource extends Resource
                                                 ->pluck('customer_name', 'id')
                                                 ->toArray();
                                         }
-                                        
+
                                         return [];
                                     })
                                     ->getSearchResultsUsing(function (string $search) {
                                         $user = Auth::user();
-                                        
+
                                         if (!$user) {
                                             return [];
                                         }
-                                        
+
                                         $query = Customer::query();
-                                        
+
                                         // Admin can see all customers
                                         if ($user->hasRole('admin')) {
                                             return $query
@@ -119,12 +102,12 @@ class InvoiceResource extends Resource
                                                     return [$customer->id => $customer->customer_name . ' (' . $customer->account_number . ')'];
                                                 });
                                         }
-                                        
+
                                         // Issuer can only see their own customers and assigned customers
                                         if ($user->hasRole('issuer') && $user->issuer) {
                                             $issuer = $user->issuer;
                                             $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
-                                            
+
                                             return $query
                                                 ->whereIn('issuer_id', $viewableIssuerIds)
                                                 ->where(function ($query) use ($search) {
@@ -137,7 +120,7 @@ class InvoiceResource extends Resource
                                                     return [$customer->id => $customer->customer_name . ' (' . $customer->account_number . ')'];
                                                 });
                                         }
-                                        
+
                                         return [];
                                     })
                                     ->getOptionLabelUsing(function ($value) {
@@ -146,17 +129,27 @@ class InvoiceResource extends Resource
                                     })
                                     ->required(),
 
-                                Forms\Components\TextInput::make('customer_city')
+                                Forms\Components\TextInput::make('customer_city_display')
                                     ->label('City / المدينة')
-                                    ->required()
-                                    ->maxLength(255)
                                     ->disabled()
-                                    ->dehydrated(),
+                                    ->dehydrated(false)
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                        $customerId = $get('customer_id');
+                                        if ($customerId) {
+                                            $customer = \App\Models\Customer::with('city')->find($customerId);
+                                            if ($customer && $customer->city) {
+                                                $set('customer_city_display', $customer->city->name);
+                                            }
+                                        }
+                                    })
+                                    ->formatStateUsing(function ($record) {
+                                        if ($record && $record->customer && $record->customer->city) {
+                                            return $record->customer->city->name;
+                                        }
+                                        return null;
+                                    }),
                             ]),
-
-                        // Hidden field for customer_name - required by database
-                        Forms\Components\Hidden::make('customer_name')
-                            ->dehydrated(),
 
                     ])->columns(3),
 
@@ -166,10 +159,12 @@ class InvoiceResource extends Resource
                             ->label('')
                             ->relationship()
                             ->schema([
-                                Forms\Components\TextInput::make('item_name')
-                                    ->label('Item Name / اسم المنتج')
+                                Forms\Components\Select::make('product_id')
+                                    ->label('Product / المنتج')
+                                    ->searchable()
+                                    ->preload()
+                                    ->options(Product::pluck('name', 'id'))
                                     ->required()
-                                    ->maxLength(255)
                                     ->columnSpan(2),
                                 Forms\Components\TextInput::make('item_number')
                                     ->label('Item Number / رقم المنتج')
@@ -220,7 +215,7 @@ class InvoiceResource extends Resource
                             ->addActionLabel('Add Item / إضافة منتج')
                             ->defaultItems(1)
                             ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['item_name'] ?? null)
+                            ->itemLabel(fn(array $state): ?string => $state['product_id'] ? Product::find($state['product_id'])?->name : null)
                             ->live()
                             ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get) {
                                 $items = $get('items') ?? [];
@@ -241,13 +236,13 @@ class InvoiceResource extends Resource
                                 $set('price_per_yard', $totalYards > 0 ? $totalAmount / $totalYards : 0);
                             })
                             ->addAction(
-                                fn (Forms\Components\Actions\Action $action) => $action
+                                fn(Forms\Components\Actions\Action $action) => $action
                                     ->label('Add Item / إضافة منتج')
                                     ->icon('heroicon-m-plus')
                                     ->action(function (Forms\Get $get, Forms\Set $set) {
                                         $items = $get('items') ?? [];
                                         $items[] = [
-                                            'item_name' => '',
+                                            'product_id' => null,
                                             'item_number' => '',
                                             'yards' => '',
                                             'price_per_yard' => '',
@@ -279,7 +274,7 @@ class InvoiceResource extends Resource
                                 $user = Auth::user();
                                 return $user && $user->hasRole('issuer');
                             }),
-                        
+
                         Forms\Components\DatePicker::make('due_date')
                             ->label('Due Date / تاريخ السداد')
                             ->required()
@@ -298,6 +293,13 @@ class InvoiceResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('row_number')
+                    ->label('#')
+                    ->getStateUsing(function ($record, $rowLoop) {
+                        return $rowLoop->iteration;
+                    })
+                    ->width('60px')
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('invoice_number')
                     ->label('Invoice ID' . PHP_EOL . 'رقم الفاتورة')
                     ->searchable()
@@ -366,7 +368,7 @@ class InvoiceResource extends Resource
                         return $query
                             ->when(
                                 $data['created_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
                             );
                     }),
                 Tables\Filters\Filter::make('created_until')
@@ -378,7 +380,7 @@ class InvoiceResource extends Resource
                         return $query
                             ->when(
                                 $data['created_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
                     }),
             ])
@@ -413,22 +415,22 @@ class InvoiceResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = Auth::user();
-        
+
         if (!$user) {
             return parent::getEloquentQuery()->whereRaw('1 = 0'); // No access if not authenticated
         }
 
         // Admin can see everything
         if ($user->hasRole('admin')) {
-            return parent::getEloquentQuery();
+            return parent::getEloquentQuery()->with(['customer.city']);
         }
 
         // Issuer can only see their own invoices and those they have access to
         if ($user->hasRole('issuer') && $user->issuer) {
             $issuer = $user->issuer;
             $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
-            
-            return parent::getEloquentQuery()->whereIn('issuer_id', $viewableIssuerIds);
+
+            return parent::getEloquentQuery()->whereIn('issuer_id', $viewableIssuerIds)->with(['customer.city']);
         }
 
         // No access for other roles

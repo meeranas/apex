@@ -11,7 +11,7 @@ class TransactionItem extends Model
 
     protected $fillable = [
         'transaction_id',
-        'item_name',
+        'product_id',
         'item_number',
         'yards',
         'price_per_yard',
@@ -27,5 +27,10 @@ class TransactionItem extends Model
     public function transaction()
     {
         return $this->belongsTo(Transaction::class);
+    }
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
     }
 }

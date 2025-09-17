@@ -16,8 +16,6 @@ class Transaction extends Model
         'document_number',
         'transaction_date',
         'customer_id',
-        'customer_name',
-        'customer_city',
         'amount',
         'payment_method',
         'total_amount',
@@ -39,6 +37,11 @@ class Transaction extends Model
     public function issuer(): BelongsTo
     {
         return $this->belongsTo(Issuer::class);
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     public function items(): HasMany

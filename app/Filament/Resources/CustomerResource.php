@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CustomerResource\Pages;
 use App\Models\Customer;
+use App\Models\City;
 use App\Models\Issuer;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -13,6 +14,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Facades\Auth;
+
 
 class CustomerResource extends Resource
 {
@@ -61,10 +63,24 @@ class CustomerResource extends Resource
                             ->required()
                             ->unique(ignoreRecord: true)
                             ->maxLength(255),
-                        Forms\Components\TextInput::make('city')
+
+                        Forms\Components\Select::make('city_id')
                             ->label('City / المدينة')
+                            ->relationship('city', 'name')
+                            ->searchable()
+                            ->preload()
                             ->required()
-                            ->maxLength(255),
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->required()
+                                    ->label('City Name'),
+                                Forms\Components\Toggle::make('is_active')
+                                    ->default(true)
+                                    ->label('Active'),
+                            ])
+                            ->createOptionUsing(function (array $data): int {
+                                return \App\Models\City::create($data)->getKey();
+                            }),
                         Forms\Components\TextInput::make('representative_name')
                             ->label('Representative Name / اسم المسؤول')
                             ->required()
@@ -73,7 +89,15 @@ class CustomerResource extends Resource
                             ->label('Mobile Number / رقم الجوال')
                             ->required()
                             ->tel()
-                            ->maxLength(255),
+                            ->maxLength(10)
+                            ->minLength(10)
+                            ->regex('/^05\d{8}$/')
+                            ->helperText('Must start with 05 and be exactly 10 digits (e.g., 0512345678)')
+                            ->validationMessages([
+                                'regex' => 'Mobile number must start with 05 and be exactly 10 digits.',
+                                'min' => 'Mobile number must be exactly 10 digits.',
+                                'max' => 'Mobile number must be exactly 10 digits.',
+                            ]),
                         Forms\Components\Grid::make(2)->schema([
                             Forms\Components\Textarea::make('address')
                                 ->label('Address / وصف الموقع')
@@ -176,6 +200,13 @@ class CustomerResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('row_number')
+                    ->label('#')
+                    ->getStateUsing(function ($record, $rowLoop) {
+                        return $rowLoop->iteration;
+                    })
+                    ->width('60px')
+                    ->alignCenter(),
                 Tables\Columns\TextColumn::make('issuer.full_name')
                     ->label('Issuer / الموظف')
                     ->searchable()
@@ -191,7 +222,7 @@ class CustomerResource extends Resource
                     ->searchable()
                     ->sortable()
                     ->width('120px'),
-                Tables\Columns\TextColumn::make('city')
+                Tables\Columns\TextColumn::make('city.name')
                     ->label('City / المدينة')
                     ->searchable()
                     ->sortable()
@@ -202,8 +233,9 @@ class CustomerResource extends Resource
                     ->sortable()
                     ->width('150px'),
                 Tables\Columns\TextColumn::make('mobile_number')
-                    ->label('Mobile / الجوال')
+                    ->label('Mobile Number / رقم الجوال')
                     ->searchable()
+                    ->sortable()
                     ->width('120px'),
                 Tables\Columns\TextColumn::make('current_balance')
                     ->label('Current Balance / الرصيد الحالي')

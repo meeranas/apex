@@ -6,6 +6,8 @@ use App\Filament\Resources\TransactionResource\Pages;
 use App\Models\Transaction;
 use App\Models\Customer;
 use App\Models\Issuer;
+use App\Models\Product;
+use App\Models\Invoice;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -65,23 +67,22 @@ class TransactionResource extends Resource
                                         if ($state) {
                                             $customer = Customer::find($state);
                                             if ($customer) {
-                                                $set('customer_city', $customer->city);
-                                                $set('customer_name', $customer->customer_name);
+                                                $set('customer_city_display', $customer->city ? $customer->city->name : '');
                                             }
                                         }
                                     })
                                     ->options(function () {
                                         $user = Auth::user();
-                                        
+
                                         if (!$user) {
                                             return [];
                                         }
-                                        
+
                                         // Admin can see all customers
                                         if ($user->hasRole('admin')) {
                                             return Customer::pluck('customer_name', 'id')->toArray();
                                         }
-                                        
+
                                         // Issuer can only see their own customers and assigned customers
                                         if ($user->hasRole('issuer') && $user->issuer) {
                                             $issuer = $user->issuer;
@@ -90,18 +91,18 @@ class TransactionResource extends Resource
                                                 ->pluck('customer_name', 'id')
                                                 ->toArray();
                                         }
-                                        
+
                                         return [];
                                     })
                                     ->getSearchResultsUsing(function (string $search) {
                                         $user = Auth::user();
-                                        
+
                                         if (!$user) {
                                             return [];
                                         }
-                                        
+
                                         $query = Customer::query();
-                                        
+
                                         // Admin can see all customers
                                         if ($user->hasRole('admin')) {
                                             return $query
@@ -113,12 +114,12 @@ class TransactionResource extends Resource
                                                     return [$customer->id => $customer->customer_name . ' (' . $customer->account_number . ')'];
                                                 });
                                         }
-                                        
+
                                         // Issuer can only see their own customers and assigned customers
                                         if ($user->hasRole('issuer') && $user->issuer) {
                                             $issuer = $user->issuer;
                                             $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
-                                            
+
                                             return $query
                                                 ->whereIn('issuer_id', $viewableIssuerIds)
                                                 ->where(function ($query) use ($search) {
@@ -131,7 +132,7 @@ class TransactionResource extends Resource
                                                     return [$customer->id => $customer->customer_name . ' (' . $customer->account_number . ')'];
                                                 });
                                         }
-                                        
+
                                         return [];
                                     })
                                     ->getOptionLabelUsing(function ($value) {
@@ -140,30 +141,67 @@ class TransactionResource extends Resource
                                     })
                                     ->required(),
 
-                                Forms\Components\TextInput::make('customer_city')
+                                Forms\Components\TextInput::make('customer_city_display')
                                     ->label('City / المدينة')
-                                    ->required()
-                                    ->maxLength(255)
                                     ->disabled()
-                                    ->dehydrated(),
+                                    ->dehydrated(false)
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                        $customerId = $get('customer_id');
+                                        if ($customerId) {
+                                            $customer = \App\Models\Customer::with('city')->find($customerId);
+                                            if ($customer && $customer->city) {
+                                                $set('customer_city_display', $customer->city->name);
+                                            }
+                                        }
+                                    })
+                                    ->formatStateUsing(function ($record) {
+                                        if ($record && $record->customer && $record->customer->city) {
+                                            return $record->customer->city->name;
+                                        }
+                                        return null;
+                                    }),
                             ]),
 
-                        // Hidden field for customer_name - required by database
-                        Forms\Components\Hidden::make('customer_name')
-                            ->dehydrated(),
 
                     ])->columns(3),
 
+                // Transaction Items Section - Only show for return_goods
                 Forms\Components\Section::make('Transaction Items / بنود المعاملة')
                     ->schema([
                         Forms\Components\Repeater::make('items')
                             ->label('')
                             ->relationship()
                             ->schema([
-                                Forms\Components\TextInput::make('item_name')
-                                    ->label('Item Name / اسم المنتج')
+                                Forms\Components\Select::make('product_id')
+                                    ->label('Product / المنتج')
+                                    ->searchable()
+                                    ->preload()
+                                    ->options(function (Forms\Get $get) {
+                                        $transactionType = $get('type');
+                                        $customerId = $get('customer_id');
+
+                                        // For return_goods, filter products based on customer's invoice items
+                                        if ($transactionType === 'return_goods' && $customerId) {
+                                            $productIds = Invoice::where('customer_id', $customerId)
+                                                ->with('items')
+                                                ->get()
+                                                ->pluck('items')
+                                                ->flatten()
+                                                ->pluck('product_id')
+                                                ->unique()
+                                                ->filter()
+                                                ->toArray();
+
+                                            return Product::whereIn('id', $productIds)
+                                                ->pluck('name', 'id')
+                                                ->toArray();
+                                        }
+
+                                        // For other transaction types, show all products
+                                        return Product::pluck('name', 'id')->toArray();
+                                    })
                                     ->required()
-                                    ->maxLength(255)
                                     ->columnSpan(2),
                                 Forms\Components\TextInput::make('item_number')
                                     ->label('Item Number / رقم المنتج')
@@ -214,7 +252,7 @@ class TransactionResource extends Resource
                             ->addActionLabel('Add Item / إضافة منتج')
                             ->defaultItems(1)
                             ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['item_name'] ?? null)
+                            ->itemLabel(fn(array $state): ?string => $state['product_id'] ? Product::find($state['product_id'])?->name : null)
                             ->live()
                             ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get) {
                                 $items = $get('items') ?? [];
@@ -233,13 +271,13 @@ class TransactionResource extends Resource
                                 $set('total_amount', $totalAmount);
                             })
                             ->addAction(
-                                fn (Forms\Components\Actions\Action $action) => $action
+                                fn(Forms\Components\Actions\Action $action) => $action
                                     ->label('Add Item / إضافة منتج')
                                     ->icon('heroicon-m-plus')
                                     ->action(function (Forms\Get $get, Forms\Set $set) {
                                         $items = $get('items') ?? [];
                                         $items[] = [
-                                            'item_name' => '',
+                                            'product_id' => null,
                                             'item_number' => '',
                                             'yards' => '',
                                             'price_per_yard' => '',
@@ -248,8 +286,10 @@ class TransactionResource extends Resource
                                         $set('items', $items);
                                     })
                             ),
-                    ]),
+                    ])
+                    ->visible(fn(Forms\Get $get): bool => $get('type') === 'return_goods'),
 
+                // Payment Information Section - Only show for debit and discount
                 Forms\Components\Section::make('Payment Information / معلومات الدفع')
                     ->schema([
                         Forms\Components\TextInput::make('amount')
@@ -277,6 +317,40 @@ class TransactionResource extends Resource
                                 $set('total_amount', $state ?: $totalFromItems);
                             }),
 
+                        Forms\Components\Select::make('payment_product_id')
+                            ->label('Product / المنتج')
+                            ->options(Product::all()->pluck('name', 'id'))
+                            ->searchable()
+                            ->preload()
+                            ->native(false)
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                if ($state) {
+                                    $items = $get('items') ?? [];
+
+                                    // Check if product already exists in items
+                                    $productExists = false;
+                                    foreach ($items as $index => $item) {
+                                        if (isset($item['product_id']) && $item['product_id'] == $state) {
+                                            $productExists = true;
+                                            break;
+                                        }
+                                    }
+
+                                    // If product doesn't exist, add it to items
+                                    if (!$productExists) {
+                                        $items[] = [
+                                            'product_id' => $state,
+                                            'item_number' => '',
+                                            'yards' => 0,
+                                            'price_per_yard' => 0,
+                                            'total' => 0,
+                                        ];
+                                        $set('items', $items);
+                                    }
+                                }
+                            }),
+
                         Forms\Components\Select::make('payment_method')
                             ->label('Payment Method / طريقة الدفع')
                             ->options([
@@ -296,7 +370,9 @@ class TransactionResource extends Resource
                             ->prefix('SAR')
                             ->disabled()
                             ->dehydrated(),
-                    ])->columns(3),
+                    ])
+                    ->columns(4)
+                    ->visible(fn(Forms\Get $get): bool => in_array($get('type'), ['debit', 'discount'])),
 
                 Forms\Components\Section::make('Additional Information / معلومات إضافية')
                     ->schema([
@@ -334,6 +410,15 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
+
+                Tables\Columns\TextColumn::make('row_number')
+                    ->label('#')
+                    ->getStateUsing(function ($record, $rowLoop) {
+                        return $rowLoop->iteration;
+                    })
+                    ->width('60px')
+                    ->alignCenter(),
+
                 Tables\Columns\TextColumn::make('type')
                     ->label('Type' . PHP_EOL . 'النوع')
                     ->badge()
@@ -424,7 +509,7 @@ class TransactionResource extends Resource
                         return $query
                             ->when(
                                 $data['created_from'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
                             );
                     }),
                 Tables\Filters\Filter::make('created_until')
@@ -436,7 +521,7 @@ class TransactionResource extends Resource
                         return $query
                             ->when(
                                 $data['created_until'],
-                                fn (Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
                             );
                     }),
             ])
@@ -471,7 +556,7 @@ class TransactionResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $user = Auth::user();
-        
+
         if (!$user) {
             return parent::getEloquentQuery()->whereRaw('1 = 0'); // No access if not authenticated
         }
@@ -485,7 +570,7 @@ class TransactionResource extends Resource
         if ($user->hasRole('issuer') && $user->issuer) {
             $issuer = $user->issuer;
             $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
-            
+
             return parent::getEloquentQuery()->whereIn('issuer_id', $viewableIssuerIds);
         }
 

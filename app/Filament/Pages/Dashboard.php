@@ -34,7 +34,7 @@ class Dashboard extends BaseDashboard implements HasForms
     {
         $user = Auth::user();
         $isAdmin = $user && $user->hasRole('admin');
-        
+
         return $form
             ->schema([
                 Section::make('Dashboard Filters / مرشحات لوحة التحكم')
@@ -45,11 +45,11 @@ class Dashboard extends BaseDashboard implements HasForms
                                 if ($isAdmin) {
                                     return Issuer::pluck('full_name', 'id')->toArray();
                                 }
-                                
+
                                 if ($user && $user->hasRole('issuer') && $user->issuer) {
                                     return [$user->issuer->id => $user->issuer->full_name];
                                 }
-                                
+
                                 return [];
                             })
                             ->placeholder('Select Issuer / اختر الموظف')
@@ -58,28 +58,28 @@ class Dashboard extends BaseDashboard implements HasForms
                             ->afterStateUpdated(fn() => $this->updateStatsWidget())
                             ->visible($isAdmin),
 
-                        Select::make('city')
-                            ->label('City / المدينة')
-                            ->options(function () use ($isAdmin, $user) {
-                                if ($isAdmin) {
-                                    return Customer::distinct()->pluck('city', 'city')->toArray();
-                                }
-                                
-                                if ($user && $user->hasRole('issuer') && $user->issuer) {
-                                    $issuer = $user->issuer;
-                                    $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
-                                    return Customer::whereIn('issuer_id', $viewableIssuerIds)
-                                        ->distinct()
-                                        ->pluck('city', 'city')
-                                        ->toArray();
-                                }
-                                
-                                return [];
-                            })
-                            ->placeholder('Select City / اختر المدينة')
-                            ->searchable()
-                            ->reactive()
-                            ->afterStateUpdated(fn() => $this->updateStatsWidget()),
+                        // Select::make('city')
+                        //     ->label('City / المدينة')
+                        //     ->options(function () use ($isAdmin, $user) {
+                        //         if ($isAdmin) {
+                        //             return Customer::distinct()->pluck('city', 'city')->toArray();
+                        //         }
+
+                        //         if ($user && $user->hasRole('issuer') && $user->issuer) {
+                        //             $issuer = $user->issuer;
+                        //             $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
+                        //             return Customer::whereIn('issuer_id', $viewableIssuerIds)
+                        //                 ->distinct()
+                        //                 ->pluck('city', 'city')
+                        //                 ->toArray();
+                        //         }
+
+                        //         return [];
+                        //     })
+                        //     ->placeholder('Select City / اختر المدينة')
+                        //     ->searchable()
+                        //     ->reactive()
+                        //     ->afterStateUpdated(fn() => $this->updateStatsWidget()),
 
                         DatePicker::make('due_date_from')
                             ->label('Due Date From / تاريخ الاستحقاق من')

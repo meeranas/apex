@@ -16,8 +16,6 @@ class Invoice extends Model
         'goods_delivery_document_number',
         'invoice_date',
         'customer_id',
-        'customer_name',
-        'customer_city',
         'due_date',
         'remarks',
         'issuer_id',
@@ -28,6 +26,24 @@ class Invoice extends Model
         'due_date' => 'date',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($invoice) {
+            if (empty($invoice->invoice_number)) {
+                do {
+                    // Format: INV-YYYYMMDD-HHMMSS-XXX (where XXX is random 3 digits)
+                    $timestamp = now()->format('Ymd-His');
+                    $randomSuffix = str_pad(random_int(0, 999), 3, '0', STR_PAD_LEFT);
+                    $invoiceNumber = 'INV-' . $timestamp . '-' . $randomSuffix;
+                } while (Invoice::where('invoice_number', $invoiceNumber)->exists());
+
+                $invoice->invoice_number = $invoiceNumber;
+            }
+        });
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
@@ -36,6 +52,11 @@ class Invoice extends Model
     public function issuer(): BelongsTo
     {
         return $this->belongsTo(Issuer::class);
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     public function items(): HasMany

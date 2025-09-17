@@ -15,7 +15,7 @@ class Customer extends Model
         'issuer_id',
         'customer_name',
         'account_number',
-        'city',
+        'city_id', // Keep only city_id, remove 'city'
         'representative_name',
         'mobile_number',
         'address',
@@ -45,6 +45,11 @@ class Customer extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(Transaction::class);
+    }
+
+    public function city(): BelongsTo
+    {
+        return $this->belongsTo(City::class);
     }
 
     // Calculate overall payments (اجمالي المدفوع) - sum of debit transactions

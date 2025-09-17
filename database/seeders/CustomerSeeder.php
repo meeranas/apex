@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Transaction;
+use App\Models\Product;
 
 class CustomerSeeder extends Seeder
 {
@@ -16,7 +17,6 @@ class CustomerSeeder extends Seeder
         // Create sample customers
         $customers = [
             [
-                'customer_name' => 'Ahmed Mohamed Ali / أحمد محمد علي العلي',
                 'account_number' => 'ACC001',
                 'city' => 'Riyadh / الرياض',
                 'representative_name' => 'Salem Ahmed / سالم أحمد',
@@ -26,7 +26,6 @@ class CustomerSeeder extends Seeder
                 'old_balance' => 0,
             ],
             [
-                'customer_name' => 'Fatima Al-Saad / فاطمة السعد',
                 'account_number' => 'ACC002',
                 'city' => 'Jeddah / جدة',
                 'representative_name' => 'Khaled Al-Nour / خالد النور',
@@ -36,7 +35,6 @@ class CustomerSeeder extends Seeder
                 'old_balance' => 0,
             ],
             [
-                'customer_name' => 'Mohamed Abdullah / محمد عبدالله',
                 'account_number' => 'ACC003',
                 'city' => 'Dammam / الدمام',
                 'representative_name' => 'Abdulrahman Al-Qahtani / عبدالرحمن القحطاني',
@@ -46,7 +44,6 @@ class CustomerSeeder extends Seeder
                 'old_balance' => 2500.00,
             ],
             [
-                'customer_name' => 'Noura Al-Shammari / نورا الشمري',
                 'account_number' => 'ACC004',
                 'city' => 'Riyadh / الرياض',
                 'representative_name' => 'Abdulaziz Al-Mutairi / عبدالعزيز المطيري',
@@ -56,7 +53,6 @@ class CustomerSeeder extends Seeder
                 'old_balance' => 0,
             ],
             [
-                'customer_name' => 'Abdullah Al-Saeed / عبدالله السعيد',
                 'account_number' => 'ACC005',
                 'city' => 'Mecca / مكة المكرمة',
                 'representative_name' => 'Youssef Al-Harthi / يوسف الحارثي',
@@ -77,8 +73,6 @@ class CustomerSeeder extends Seeder
                     'goods_delivery_document_number' => 'GD-' . $customer->id . '-001',
                     'invoice_date' => now()->subDays(rand(1, 30)),
                     'customer_id' => $customer->id,
-                    'customer_city' => $customer->city,
-                    'customer_name' => $customer->customer_name,
                     'due_date' => now()->addDays(rand(15, 45)),
                     'remarks' => 'Regular Invoice / فاتورة عادية',
                     'issuer_name' => $customer->representative_name,
@@ -88,8 +82,6 @@ class CustomerSeeder extends Seeder
                     'goods_delivery_document_number' => 'GD-' . $customer->id . '-002',
                     'invoice_date' => now()->subDays(rand(1, 15)),
                     'customer_id' => $customer->id,
-                    'customer_city' => $customer->city,
-                    'customer_name' => $customer->customer_name,
                     'due_date' => now()->addDays(rand(20, 60)),
                     'remarks' => 'Special Invoice / فاتورة خاصة',
                     'issuer_name' => $customer->representative_name,
@@ -111,7 +103,7 @@ class CustomerSeeder extends Seeder
 
                     InvoiceItem::create([
                         'invoice_id' => $invoice->id,
-                        'item_name' => 'Product ' . $i . ' / منتج ' . $i,
+                        'product_id' => Product::inRandomOrder()->first()->id,
                         'item_number' => rand(1000, 9999),
                         'yards' => $yards,
                         'price_per_yard' => $pricePerYard,
@@ -131,8 +123,6 @@ class CustomerSeeder extends Seeder
                     'document_number' => 'DEB-' . $customer->id . '-001',
                     'transaction_date' => now()->subDays(rand(1, 20)),
                     'customer_id' => $customer->id,
-                    'customer_name' => $customer->customer_name,
-                    'customer_city' => $customer->city,
                     'amount' => rand(1000, 5000),
                     'payment_method' => ['cash', 'check', 'bank_transfer', 'credit_card'][rand(0, 3)],
                     'remarks' => 'Cash Payment / دفعة نقدية',
@@ -143,8 +133,6 @@ class CustomerSeeder extends Seeder
                     'document_number' => 'DIS-' . $customer->id . '-001',
                     'transaction_date' => now()->subDays(rand(1, 10)),
                     'customer_id' => $customer->id,
-                    'customer_name' => $customer->customer_name,
-                    'customer_city' => $customer->city,
                     'amount' => rand(100, 1000),
                     'remarks' => 'Special Discount / خصم خاص',
                     'issuer_name' => $customer->representative_name,
