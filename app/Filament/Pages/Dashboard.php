@@ -23,6 +23,8 @@ class Dashboard extends BaseDashboard implements HasForms
 
     protected static string $view = 'filament.pages.dashboard';
 
+    protected static ?string $navigationLabel = 'Dashboard / لوحة التحكم';
+
     public ?array $data = [];
 
     public function mount(): void

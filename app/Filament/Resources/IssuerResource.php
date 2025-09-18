@@ -20,11 +20,11 @@ class IssuerResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?string $navigationLabel = 'Issuers';
+    protected static ?string $navigationLabel = 'Issuers / المصدِرون';
 
-    protected static ?string $modelLabel = 'Issuer';
+    protected static ?string $modelLabel = 'Issuer / مصدِر';
 
-    protected static ?string $pluralModelLabel = 'Issuers';
+    protected static ?string $pluralModelLabel = 'Issuers / المصدِرون';
 
     public static function canViewAny(): bool
     {

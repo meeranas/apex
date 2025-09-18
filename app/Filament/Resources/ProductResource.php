@@ -20,11 +20,15 @@ class ProductResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-cube';
 
-    protected static ?string $navigationLabel = 'Products';
+    protected static ?string $navigationLabel = 'Products / المنتجات';
 
-    protected static ?string $modelLabel = 'Product';
+    protected static ?string $modelLabel = 'Product / منتج';
 
-    protected static ?string $pluralModelLabel = 'Products';
+    protected static ?string $pluralModelLabel = 'Products / المنتجات';
+
+    protected static ?string $navigationGroup = 'Settings / الإعدادات';
+
+    protected static ?int $navigationSort = 2;
 
     public static function canViewAny(): bool
     {

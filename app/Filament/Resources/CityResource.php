@@ -18,11 +18,15 @@ class CityResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
 
-    protected static ?string $navigationLabel = 'Cities';
+    protected static ?string $navigationLabel = 'Cities / المدن';
 
-    protected static ?string $modelLabel = 'City';
+    protected static ?string $modelLabel = 'City / مدينة';
 
-    protected static ?string $pluralModelLabel = 'Cities';
+    protected static ?string $pluralModelLabel = 'Cities / المدن';
+
+    protected static ?string $navigationGroup = 'Settings / الإعدادات';
+
+    protected static ?int $navigationSort = 1;
 
     public static function canViewAny(): bool
     {
