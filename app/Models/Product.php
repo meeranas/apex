@@ -9,6 +9,7 @@ class Product extends Model
 {
     protected $fillable = [
         'name',
+        'number',
     ];
 
     public function invoiceItems(): HasMany
