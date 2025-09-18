@@ -26,6 +26,8 @@ class IssuerResource extends Resource
 
     protected static ?string $pluralModelLabel = 'Issuers / المصدِرون';
 
+    protected static ?string $navigationGroup = 'Settings / الإعدادات';
+
     public static function canViewAny(): bool
     {
         return Auth::user()?->hasRole('admin') ?? false;
