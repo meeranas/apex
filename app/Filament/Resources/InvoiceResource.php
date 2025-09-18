@@ -165,11 +165,36 @@ class InvoiceResource extends Resource
                                     ->preload()
                                     ->options(Product::pluck('name', 'id'))
                                     ->required()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                                        if ($state) {
+                                            $product = Product::find($state);
+                                            if ($product && $product->number) {
+                                                $set('item_number', $product->number);
+                                            }
+                                        } else {
+                                            $set('item_number', '');
+                                        }
+                                    })
                                     ->columnSpan(2),
                                 Forms\Components\TextInput::make('item_number')
                                     ->label('Item Number / رقم المنتج')
-                                    ->numeric()
-                                    ->required()
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->formatStateUsing(function ($state, $record) {
+                                        // If we have a state (item_number), use it
+                                        if ($state) {
+                                            return $state;
+                                        }
+
+                                        // If we're editing and have a product_id, get the product number
+                                        if ($record && isset($record['product_id'])) {
+                                            $product = Product::find($record['product_id']);
+                                            return $product ? $product->number : '';
+                                        }
+
+                                        return '';
+                                    })
                                     ->columnSpan(1),
                                 Forms\Components\TextInput::make('yards')
                                     ->label('Yards / الياردات')
@@ -179,8 +204,12 @@ class InvoiceResource extends Resource
                                     ->suffix('yards')
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        $pricePerYard = $get('price_per_yard') ?? 0;
-                                        // Convert to numbers before calculation
+                                        // Only calculate if we have a valid state
+                                        if ($state === null || $state === '') {
+                                            return;
+                                        }
+
+                                        $pricePerYard = $get('price_per_yard');
                                         $yards = is_numeric($state) ? (float) $state : 0;
                                         $price = is_numeric($pricePerYard) ? (float) $pricePerYard : 0;
                                         $total = $yards * $price;
@@ -195,8 +224,12 @@ class InvoiceResource extends Resource
                                     ->prefix('SAR')
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        $yards = $get('yards') ?? 0;
-                                        // Convert to numbers before calculation
+                                        // Only calculate if we have a valid state
+                                        if ($state === null || $state === '') {
+                                            return;
+                                        }
+
+                                        $yards = $get('yards');
                                         $price = is_numeric($state) ? (float) $state : 0;
                                         $yardsNum = is_numeric($yards) ? (float) $yards : 0;
                                         $total = $yardsNum * $price;
@@ -214,42 +247,27 @@ class InvoiceResource extends Resource
                             ->columns(6)
                             ->addActionLabel('Add Item / إضافة منتج')
                             ->defaultItems(1)
-                            ->collapsible()
-                            ->itemLabel(fn(array $state): ?string => $state['product_id'] ? Product::find($state['product_id'])?->name : null)
-                            ->live()
-                            ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get) {
-                                $items = $get('items') ?? [];
-                                $totalAmount = 0;
-                                $totalYards = 0;
-
-                                foreach ($items as $item) {
-                                    if (isset($item['total']) && is_numeric($item['total'])) {
-                                        $totalAmount += (float) $item['total'];
-                                    }
-                                    if (isset($item['yards']) && is_numeric($item['yards'])) {
-                                        $totalYards += (float) $item['yards'];
-                                    }
-                                }
-
-                                $set('overall_yards', $totalYards);
-                                $set('total_amount', $totalAmount);
-                                $set('price_per_yard', $totalYards > 0 ? $totalAmount / $totalYards : 0);
-                            })
-                            ->addAction(
-                                fn(Forms\Components\Actions\Action $action) => $action
-                                    ->label('Add Item / إضافة منتج')
-                                    ->icon('heroicon-m-plus')
-                                    ->action(function (Forms\Get $get, Forms\Set $set) {
-                                        $items = $get('items') ?? [];
-                                        $items[] = [
-                                            'product_id' => null,
-                                            'item_number' => '',
-                                            'yards' => '',
-                                            'price_per_yard' => '',
-                                            'total' => 0, // Set as number instead of empty string
-                                        ];
-                                        $set('items', $items);
-                                    })
+                            ->minItems(1)
+                            // ->collapsible()
+                            // ->itemLabel(
+                            //     fn(array $state): ?string =>
+                            //     isset($state['product_id']) && $state['product_id']
+                            //     ? 'Product Item'
+                            //     : 'New Item'
+                            // )
+                            ->rules(['required', 'array', 'min:1'])
+                            ->validationMessages([
+                                'required' => 'At least one item is required / يجب إضافة منتج واحد على الأقل',
+                                'min' => 'At least one item is required / يجب إضافة منتج واحد على الأقل',
+                            ])
+                            ->deleteAction(
+                                fn(Forms\Components\Actions\Action $action, Forms\Get $get) => $action
+                                    ->requiresConfirmation()
+                                    ->modalHeading('Delete Item / حذف المنتج')
+                                    ->modalDescription('Are you sure you want to delete this item? / هل أنت متأكد من حذف هذا المنتج؟')
+                                    ->modalSubmitActionLabel('Yes, delete it / نعم، احذفه')
+                                    ->modalCancelActionLabel('Cancel / إلغاء')
+                                    ->visible(fn(Forms\Get $get): bool => count($get('items') ?? []) > 1)
                             ),
                     ]),
 

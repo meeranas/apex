@@ -46,12 +46,6 @@ class IssuerResource extends Resource
                             ->label('ID Expiration Date')
                             ->nullable(),
 
-                        Forms\Components\FileUpload::make('photo')
-                            ->label('Photo')
-                            ->image()
-                            ->directory('issuer-photos')
-                            ->nullable(),
-
                         Forms\Components\TextInput::make('password')
                             ->password()
                             ->required()
@@ -59,6 +53,12 @@ class IssuerResource extends Resource
                             ->dehydrated(fn($state) => filled($state))
                             ->required(fn(string $context): bool => $context === 'create')
                             ->label('Password'),
+
+                        Forms\Components\FileUpload::make('photo')
+                            ->label('Photo')
+                            ->image()
+                            ->directory('issuer-photos')
+                            ->nullable(),
                     ])->columns(2),
 
                 Forms\Components\Section::make('User Account')
@@ -85,16 +85,16 @@ class IssuerResource extends Resource
                             ->label('Name'),
                     ])->columns(2),
 
-                Forms\Components\Section::make('Access Permissions')
-                    ->schema([
-                        Forms\Components\Select::make('can_view_issuers')
-                            ->multiple()
-                            ->relationship('canViewIssuers', 'full_name')
-                            ->label('Can View Other Issuers')
-                            ->preload()
-                            ->searchable(),
-                    ])
-                    ->collapsible(),
+                // Forms\Components\Section::make('Access Permissions')
+                //     ->schema([
+                //         Forms\Components\Select::make('can_view_issuers')
+                //             ->multiple()
+                //             ->relationship('canViewIssuers', 'full_name')
+                //             ->label('Can View Other Issuers')
+                //             ->preload()
+                //             ->searchable(),
+                //     ])
+                //     ->collapsible(),
             ]);
     }
 

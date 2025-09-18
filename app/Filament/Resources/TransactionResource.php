@@ -44,7 +44,26 @@ class TransactionResource extends Resource
                             ])
                             ->required()
                             ->live()
-                            ->native(false),
+                            ->native(false)
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                // When type changes to return_goods, ensure at least one item exists
+                                if ($state === 'return_goods') {
+                                    $items = $get('items') ?? [];
+                                    if (empty($items)) {
+                                        // Add a default empty item
+                                        $items[] = [
+                                            'product_id' => null,
+                                            'item_number' => '',
+                                            'yards' => '',
+                                            'price_per_yard' => '',
+                                            'total' => 0,
+                                        ];
+                                        $set('items', $items);
+                                    }
+                                    // Set amount to 0 for return goods
+                                    $set('amount', 0);
+                                }
+                            }),
 
                         Forms\Components\TextInput::make('document_number')
                             ->label('Document Number / رقم السند')
@@ -202,11 +221,42 @@ class TransactionResource extends Resource
                                         return Product::pluck('name', 'id')->toArray();
                                     })
                                     ->required()
+                                    ->live()
+                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get, $component) {
+                                        // Auto-populate item_number based on selected product
+                                        if ($state) {
+                                            $product = Product::find($state);
+                                            if ($product && $product->number) {
+                                                $set('item_number', $product->number);
+                                            }
+                                        }
+                                    })
                                     ->columnSpan(2),
                                 Forms\Components\TextInput::make('item_number')
                                     ->label('Item Number / رقم المنتج')
                                     ->numeric()
                                     ->required()
+                                    ->disabled()
+                                    ->dehydrated()
+                                    ->live()
+                                    ->formatStateUsing(function ($state, $record) {
+                                        // If we're editing and have a record, get the product number
+                                        if ($record && $record->product_id) {
+                                            $product = Product::find($record->product_id);
+                                            return $product ? $product->number : $state;
+                                        }
+                                        return $state;
+                                    })
+                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                        // This ensures the field is reactive to changes
+                                        $productId = $get('product_id');
+                                        if ($productId && !$state) {
+                                            $product = Product::find($productId);
+                                            if ($product && $product->number) {
+                                                $set('item_number', $product->number);
+                                            }
+                                        }
+                                    })
                                     ->columnSpan(1),
                                 Forms\Components\TextInput::make('yards')
                                     ->label('Yards / الياردات')
@@ -222,6 +272,19 @@ class TransactionResource extends Resource
                                         $price = is_numeric($pricePerYard) ? (float) $pricePerYard : 0;
                                         $total = $yards * $price;
                                         $set('total', number_format($total, 2, '.', ''));
+
+                                        // Update total_amount for return_goods
+                                        $transactionType = $get('../../type');
+                                        if ($transactionType === 'return_goods') {
+                                            $items = $get('../../items') ?? [];
+                                            $totalAmount = 0;
+                                            foreach ($items as $item) {
+                                                if (isset($item['total']) && is_numeric($item['total'])) {
+                                                    $totalAmount += (float) $item['total'];
+                                                }
+                                            }
+                                            $set('../../total_amount', $totalAmount);
+                                        }
                                     })
                                     ->columnSpan(1),
                                 Forms\Components\TextInput::make('price_per_yard')
@@ -238,6 +301,19 @@ class TransactionResource extends Resource
                                         $yardsNum = is_numeric($yards) ? (float) $yards : 0;
                                         $total = $yardsNum * $price;
                                         $set('total', number_format($total, 2, '.', ''));
+
+                                        // Update total_amount for return_goods
+                                        $transactionType = $get('../../type');
+                                        if ($transactionType === 'return_goods') {
+                                            $items = $get('../../items') ?? [];
+                                            $totalAmount = 0;
+                                            foreach ($items as $item) {
+                                                if (isset($item['total']) && is_numeric($item['total'])) {
+                                                    $totalAmount += (float) $item['total'];
+                                                }
+                                            }
+                                            $set('../../total_amount', $totalAmount);
+                                        }
                                     })
                                     ->columnSpan(1),
                                 Forms\Components\TextInput::make('total')
@@ -251,7 +327,8 @@ class TransactionResource extends Resource
                             ->columns(6)
                             ->addActionLabel('Add Item / إضافة منتج')
                             ->defaultItems(1)
-                            ->collapsible()
+                            ->minItems(1)
+                            // ->collapsible()
                             ->itemLabel(fn(array $state): ?string => $state['product_id'] ? Product::find($state['product_id'])?->name : null)
                             ->live()
                             ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get) {
@@ -268,11 +345,16 @@ class TransactionResource extends Resource
                                     }
                                 }
 
-                                $set('total_amount', $totalAmount);
+                                // Update total_amount for return_goods transactions
+                                $transactionType = $get('type');
+                                if ($transactionType === 'return_goods') {
+                                    $set('total_amount', $totalAmount);
+                                    $set('amount', 0); // Ensure amount is always 0 for return_goods
+                                }
                             })
                             ->addAction(
                                 fn(Forms\Components\Actions\Action $action) => $action
-                                    ->label('Add Item / إضافة منتج')
+                                    // ->label('Add Item / إضافة منتج')
                                     ->icon('heroicon-m-plus')
                                     ->action(function (Forms\Get $get, Forms\Set $set) {
                                         $items = $get('items') ?? [];
@@ -285,8 +367,86 @@ class TransactionResource extends Resource
                                         ];
                                         $set('items', $items);
                                     })
+                            )
+                            ->deleteAction(
+                                fn(Forms\Components\Actions\Action $action) => $action
+                                    ->requiresConfirmation()
+                                    ->visible(fn($state, $get) => count($get('items') ?? []) > 1)
                             ),
                     ])
+                    ->visible(fn(Forms\Get $get): bool => $get('type') === 'return_goods'),
+
+                // Return Goods Summary Section - Only show for return_goods
+                Forms\Components\Section::make('Return Goods Summary / ملخص المرتجع')
+                    ->schema([
+                        Forms\Components\TextInput::make('amount')
+                            ->label('Amount / المبلغ')
+                            ->numeric()
+                            ->prefix('SAR')
+                            ->disabled()
+                            ->dehydrated()
+                            ->hidden()
+                            ->default(0)
+                            ->formatStateUsing(function ($state, $record, Forms\Get $get) {
+                                // For return_goods, always return 0
+                                $transactionType = $get('type');
+                                if ($transactionType === 'return_goods') {
+                                    return 0;
+                                }
+                                return $state;
+                            })
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                // For return_goods, always set amount to 0
+                                $transactionType = $get('type');
+                                if ($transactionType === 'return_goods') {
+                                    $set('amount', 0);
+                                }
+                            })
+                            ->columnSpan(1),
+
+                        Forms\Components\TextInput::make('total_amount')
+                            ->label('Total Amount / إجمالي المبلغ')
+                            ->numeric()
+                            ->prefix('SAR')
+                            ->disabled()
+                            ->dehydrated()
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                // For return_goods, calculate total from items
+                                $transactionType = $get('type');
+                                if ($transactionType === 'return_goods') {
+                                    $items = $get('items') ?? [];
+                                    $totalFromItems = 0;
+
+                                    foreach ($items as $item) {
+                                        if (isset($item['total']) && is_numeric($item['total'])) {
+                                            $totalFromItems += (float) $item['total'];
+                                        }
+                                    }
+
+                                    $set('total_amount', $totalFromItems);
+                                }
+                            })
+                            ->formatStateUsing(function ($state, $record, Forms\Get $get) {
+                                // For return_goods, always calculate from items
+                                $transactionType = $get('type');
+                                if ($transactionType === 'return_goods') {
+                                    $items = $get('items') ?? [];
+                                    $totalFromItems = 0;
+
+                                    foreach ($items as $item) {
+                                        if (isset($item['total']) && is_numeric($item['total'])) {
+                                            $totalFromItems += (float) $item['total'];
+                                        }
+                                    }
+
+                                    return $totalFromItems;
+                                }
+                                return $state;
+                            })
+                            ->columnSpan(1),
+                    ])
+                    ->columns(2)
                     ->visible(fn(Forms\Get $get): bool => $get('type') === 'return_goods'),
 
                 // Payment Information Section - Only show for debit and discount
@@ -299,6 +459,7 @@ class TransactionResource extends Resource
                             ->prefix('SAR')
                             ->live(onBlur: true)
                             ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                $transactionType = $get('type');
                                 $items = $get('items') ?? [];
                                 $totalFromItems = 0;
 
@@ -308,13 +469,18 @@ class TransactionResource extends Resource
                                     }
                                 }
 
-                                // If amount is not set, use total from items
-                                if (!$state && $totalFromItems > 0) {
-                                    $set('amount', $totalFromItems);
+                                // For return_goods, amount should always be 0
+                                if ($transactionType === 'return_goods') {
+                                    $set('amount', 0);
+                                    $set('total_amount', $totalFromItems);
+                                } else {
+                                    // For other types, if amount is not set, use total from items
+                                    if (!$state && $totalFromItems > 0) {
+                                        $set('amount', $totalFromItems);
+                                    }
+                                    // Update total_amount
+                                    $set('total_amount', $state ?: $totalFromItems);
                                 }
-
-                                // Update total_amount
-                                $set('total_amount', $state ?: $totalFromItems);
                             }),
 
                         Forms\Components\Select::make('payment_product_id')
@@ -355,22 +521,40 @@ class TransactionResource extends Resource
                         Forms\Components\Select::make('payment_method')
                             ->label('Payment Method / طريقة الدفع')
                             ->options([
-                                'cash' => 'نقداً / Cash',
-                                'bank_transfer' => 'تحويل بنكي / Bank Transfer',
-                                'check' => 'شيك / Check',
-                                'credit_card' => 'بطاقة ائتمان / Credit Card',
-                                'other' => 'أخرى / Other',
+                                'cash' => ' Cash / نقداً',
+                                'bank_transfer' => 'Bank Transfer / تحويل بنكي',
+                                'check' => 'Check / شيك',
+                                'credit_card' => 'Credit Card / بطاقة ائتمان',
+                                'other' => 'Other / أخرى',
                             ])
                             ->searchable()
                             ->preload()
-                            ->native(false),
+                            ->native(false)
+                            ->visible(fn(Forms\Get $get): bool => $get('type') === 'debit'),
 
                         Forms\Components\TextInput::make('total_amount')
                             ->label('Total Amount / إجمالي المبلغ')
                             ->numeric()
                             ->prefix('SAR')
                             ->disabled()
-                            ->dehydrated(),
+                            ->dehydrated()
+                            ->live()
+                            ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                // For return_goods, calculate total from items
+                                $transactionType = $get('type');
+                                if ($transactionType === 'return_goods') {
+                                    $items = $get('items') ?? [];
+                                    $totalFromItems = 0;
+
+                                    foreach ($items as $item) {
+                                        if (isset($item['total']) && is_numeric($item['total'])) {
+                                            $totalFromItems += (float) $item['total'];
+                                        }
+                                    }
+
+                                    $set('total_amount', $totalFromItems);
+                                }
+                            }),
                     ])
                     ->columns(4)
                     ->visible(fn(Forms\Get $get): bool => in_array($get('type'), ['debit', 'discount'])),

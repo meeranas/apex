@@ -12,7 +12,6 @@ class TransactionItem extends Model
     protected $fillable = [
         'transaction_id',
         'product_id',
-        'item_number',
         'yards',
         'price_per_yard',
         'total',

@@ -29,6 +29,25 @@ class Transaction extends Model
         'total_amount' => 'decimal:2',
     ];
 
+    // Mutator to ensure amount is 0 for return_goods
+    public function setAmountAttribute($value)
+    {
+        if ($this->type === 'return_goods') {
+            $this->attributes['amount'] = 0;
+        } else {
+            $this->attributes['amount'] = $value;
+        }
+    }
+
+    // Mutator to ensure amount is 0 when type is set to return_goods
+    public function setTypeAttribute($value)
+    {
+        $this->attributes['type'] = $value;
+        if ($value === 'return_goods') {
+            $this->attributes['amount'] = 0;
+        }
+    }
+
     public function customer(): BelongsTo
     {
         return $this->belongsTo(Customer::class);
