@@ -11,7 +11,9 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('invoice_items', function (Blueprint $table) {
-            $table->foreignId('product_id')->nullable()->constrained()->onDelete('set null');
+            if (!Schema::hasColumn('invoice_items', 'product_id')) {
+                $table->foreignId('product_id')->nullable()->constrained()->onDelete('set null');
+            }
         });
     }
 
@@ -21,8 +23,10 @@ return new class extends Migration {
     public function down(): void
     {
         Schema::table('invoice_items', function (Blueprint $table) {
-            $table->dropForeign(['product_id']);
-            $table->dropColumn('product_id');
+            if (Schema::hasColumn('invoice_items', 'product_id')) {
+                $table->dropForeign(['product_id']);
+                $table->dropColumn('product_id');
+            }
         });
     }
 };

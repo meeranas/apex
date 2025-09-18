@@ -44,8 +44,13 @@ class ProductResource extends Resource
                             ->validationMessages([
                                 'unique' => 'The name has already been taken.',
                             ])
-                            ->label('Product Name'),
-                    ])->columns(1),
+                            ->label('Name'),
+
+                        Forms\Components\TextInput::make('number')
+                            ->required()
+                            ->maxLength(255)
+                            ->label('Number'),
+                    ])->columns(2),
             ]);
     }
 
@@ -63,7 +68,12 @@ class ProductResource extends Resource
                     ->alignCenter(),
 
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Product Name')
+                    ->label('Name')
+                    ->searchable()
+                    ->sortable(),
+
+                Tables\Columns\TextColumn::make('number')
+                    ->label('Number')
                     ->searchable()
                     ->sortable(),
 
