@@ -43,7 +43,7 @@ class CityResource extends Resource
                             ->required()
                             ->maxLength(255)
                             ->unique(City::class, 'name', ignoreRecord: true)
-                            ->label('Name'),
+                            ->label('Name / الاسم'),
 
                     ])->columns(1),
             ]);
@@ -61,12 +61,12 @@ class CityResource extends Resource
                     ->width('60px')
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
+                    ->label('Name ' . PHP_EOL . 'الاسم')
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label('Created At ' . PHP_EOL . 'تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable()
                 // ->toggleable(isToggledHiddenByDefault: true),

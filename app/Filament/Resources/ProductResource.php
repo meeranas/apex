@@ -48,12 +48,12 @@ class ProductResource extends Resource
                             ->validationMessages([
                                 'unique' => 'The name has already been taken.',
                             ])
-                            ->label('Name'),
+                            ->label('Name / الاسم'),
 
                         Forms\Components\TextInput::make('number')
                             ->required()
                             ->maxLength(255)
-                            ->label('Number'),
+                            ->label('Number / الرقم'),
                     ])->columns(2),
             ]);
     }
@@ -72,17 +72,17 @@ class ProductResource extends Resource
                     ->alignCenter(),
 
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Name')
+                    ->label('Name ' . PHP_EOL . 'الاسم')
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('number')
-                    ->label('Number')
+                    ->label('Number ' . PHP_EOL . 'الرقم')
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label('Created At ' . PHP_EOL . 'تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),

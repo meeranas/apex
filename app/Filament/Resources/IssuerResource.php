@@ -40,10 +40,10 @@ class IssuerResource extends Resource
                         Forms\Components\TextInput::make('full_name')
                             ->required()
                             ->maxLength(255)
-                            ->label('Full Name'),
+                            ->label('Full Name / الاسم الكامل'),
 
                         Forms\Components\DatePicker::make('id_expiration')
-                            ->label('ID Expiration Date')
+                            ->label('ID Expiration Date / تاريخ انتهاء البطاقة')
                             ->nullable(),
 
                         Forms\Components\TextInput::make('password')
@@ -52,10 +52,10 @@ class IssuerResource extends Resource
                             ->maxLength(255)
                             ->dehydrated(fn($state) => filled($state))
                             ->required(fn(string $context): bool => $context === 'create')
-                            ->label('Password'),
+                            ->label('Password / الكلمة السرية'),
 
                         Forms\Components\FileUpload::make('photo')
-                            ->label('Photo')
+                            ->label('Photo / الصورة')
                             ->image()
                             ->directory('issuer-photos')
                             ->nullable(),
@@ -66,7 +66,7 @@ class IssuerResource extends Resource
                         Forms\Components\TextInput::make('user_email')
                             ->email()
                             ->required()
-                            ->label('Email')
+                            ->label('Email / البريد الإلكتروني')
                             ->unique(
                                 table: User::class,
                                 column: 'email',
@@ -82,7 +82,7 @@ class IssuerResource extends Resource
                         Forms\Components\TextInput::make('user_name')
                             ->required()
                             ->maxLength(255)
-                            ->label('Name'),
+                            ->label('Name / الاسم'),
                     ])->columns(2),
 
                 // Forms\Components\Section::make('Access Permissions')
@@ -110,37 +110,36 @@ class IssuerResource extends Resource
                     ->width('60px')
                     ->alignCenter(),
                 Tables\Columns\ImageColumn::make('photo')
-                    ->label('Photo')
+                    ->label('Photo ' . PHP_EOL . 'الصورة')
                     ->circular()
                     ->defaultImageUrl('data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="50" fill="#e5e7eb"/><circle cx="50" cy="35" r="15" fill="#9ca3af"/><path d="M25 75c0-13.8 11.2-25 25-25s25 11.2 25 25" fill="#9ca3af"/></svg>')),
 
                 Tables\Columns\TextColumn::make('full_name')
-                    ->label('Full Name')
+                    ->label('Full Name ' . PHP_EOL . 'الاسم الكامل')
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('user.email')
-                    ->label('Email')
+                    ->label('Email ' . PHP_EOL . 'البريد الإلكتروني')
                     ->searchable()
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('id_expiration')
-                    ->label('ID Expiration')
+                    ->label('ID Expiration ' . PHP_EOL . 'تاريخ انتهاء البطاقة')
                     ->date()
                     ->sortable()
                     ->badge()
                     ->color(fn($state) => $state && $state->isPast() ? 'danger' : 'success'),
 
-                Tables\Columns\TextColumn::make('canViewIssuers.full_name')
-                    ->label('Can View')
-                    ->badge()
-                    ->separator(', '),
+                // Tables\Columns\TextColumn::make('canViewIssuers.full_name')
+                //     ->label('Can View')
+                //     ->badge()
+                //     ->separator(', '),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At')
+                    ->label('Created At ' . PHP_EOL . 'تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 Tables\Filters\Filter::make('expired_ids')

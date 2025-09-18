@@ -215,37 +215,37 @@ class CustomerResource extends Resource
                     ->width('60px')
                     ->alignCenter(),
                 Tables\Columns\TextColumn::make('issuer.full_name')
-                    ->label('Issuer / الموظف')
+                    ->label('Issuer ' . PHP_EOL . 'الموظف')
                     ->searchable()
                     ->sortable()
                     ->width('150px'),
                 Tables\Columns\TextColumn::make('customer_name')
-                    ->label('Customer Name / اسم العميل')
+                    ->label('Customer Name ' . PHP_EOL . 'اسم العميل')
                     ->searchable()
                     ->sortable()
                     ->width('180px'),
                 Tables\Columns\TextColumn::make('account_number')
-                    ->label('Account Number / رقم الحساب')
+                    ->label('Account Number ' . PHP_EOL . 'رقم الحساب')
                     ->searchable()
                     ->sortable()
                     ->width('120px'),
                 Tables\Columns\TextColumn::make('city.name')
-                    ->label('City / المدينة')
+                    ->label('City ' . PHP_EOL . 'المدينة')
                     ->searchable()
                     ->sortable()
                     ->width('120px'),
                 Tables\Columns\TextColumn::make('representative_name')
-                    ->label('Representative / المسؤول')
+                    ->label('Representative ' . PHP_EOL . 'المسؤول')
                     ->searchable()
                     ->sortable()
                     ->width('150px'),
                 Tables\Columns\TextColumn::make('mobile_number')
-                    ->label('Mobile Number / رقم الجوال')
+                    ->label('Mobile Number ' . PHP_EOL . 'رقم الجوال')
                     ->searchable()
                     ->sortable()
-                    ->width('120px'),
+                    ->width('200px'),
                 Tables\Columns\TextColumn::make('current_balance')
-                    ->label('Current Balance / الرصيد الحالي')
+                    ->label('Current Balance ' . PHP_EOL . 'الرصيد الحالي')
                     ->money('SAR')
                     ->sortable()
                     ->width('140px'),
@@ -260,7 +260,7 @@ class CustomerResource extends Resource
                 //     ->badge()
                 //     ->width('140px'),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Created At / تاريخ الإنشاء')
+                    ->label('Created At ' . PHP_EOL . 'تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true)
