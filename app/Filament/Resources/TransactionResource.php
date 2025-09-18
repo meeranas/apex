@@ -324,6 +324,7 @@ class TransactionResource extends Resource
                             ->preload()
                             ->native(false)
                             ->live()
+                            ->visible(false) // Hide the Product field for both debit and discount
                             ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                 if ($state) {
                                     $items = $get('items') ?? [];
