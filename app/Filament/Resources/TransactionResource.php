@@ -234,7 +234,6 @@ class TransactionResource extends Resource
                                     ->columnSpan(2),
                                 Forms\Components\TextInput::make('item_number')
                                     ->label('Item Number / رقم المنتج')
-                                    ->numeric()
                                     ->required()
                                     ->disabled()
                                     ->dehydrated()
