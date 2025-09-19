@@ -54,9 +54,9 @@ class TransactionResource extends Resource
                                         $items[] = [
                                             'product_id' => null,
                                             'item_number' => '',
-                                            'yards' => '',
-                                            'price_per_yard' => '',
-                                            'total' => 0,
+                                            'yards' => '0.00',
+                                            'price_per_yard' => '0.00',
+                                            'total' => '0.00',
                                         ];
                                         $set('items', $items);
                                     }
@@ -267,7 +267,7 @@ class TransactionResource extends Resource
                                     // ->live(onBlur: true)
                                     ->disabled(fn (Forms\Get $get) => empty($get('item_number')))
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        $pricePerYard = $get('price_per_yard') ?? 0;
+                                        $pricePerYard = $get('price_per_yard') ?? 0.00;
                                         // Convert to numbers before calculation
                                         $yards = is_numeric($state) ? (float) $state : 0;
                                         $price = is_numeric($pricePerYard) ? (float) $pricePerYard : 0;
@@ -366,9 +366,9 @@ class TransactionResource extends Resource
                                         $items[] = [
                                             'product_id' => null,
                                             'item_number' => '',
-                                            'yards' => '',
-                                            'price_per_yard' => '',
-                                            'total' => 0, // Set as number instead of empty string
+                                            'yards' => '0.00',
+                                            'price_per_yard' => '0.00',
+                                            'total' => '0.00', // Set as number instead of empty string
                                         ];
                                         $set('items', $items);
                                     })
@@ -514,9 +514,9 @@ class TransactionResource extends Resource
                                         $items[] = [
                                             'product_id' => $state,
                                             'item_number' => '',
-                                            'yards' => 0,
-                                            'price_per_yard' => 0,
-                                            'total' => 0,
+                                            'yards' => '0.00',
+                                            'price_per_yard' => '0.00',
+                                            'total' => '0.00',
                                         ];
                                         $set('items', $items);
                                     }
