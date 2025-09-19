@@ -225,6 +225,13 @@ class InvoiceResource extends Resource
                                     ->step(0.01)
                                     ->prefix('SAR')
                                     ->live()
+                                    ->formatStateUsing(function ($state, $record) {
+                                        // If we're editing and have a record, get the existing price_per_yard value
+                                        if ($record && isset($record->price_per_yard)) {
+                                            return $record->price_per_yard;
+                                        }
+                                        return $state;
+                                    })
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                         $yards = $get('yards');
                                         $price = is_numeric($state) ? (float) $state : 0;
