@@ -180,11 +180,28 @@ class InvoiceResource extends Resource
 
                                 Forms\Components\TextInput::make('item_number')
                                     ->label('Item Number / رقم المنتج')
-                                    ->numeric()
                                     ->required()
-                                    ->readOnly()
+                                    ->disabled()
                                     ->dehydrated()
                                     ->live()
+                                    ->formatStateUsing(function ($state, $record) {
+                                        // If we're editing and have a record, get the product number
+                                        if ($record && $record->product_id) {
+                                            $product = Product::find($record->product_id);
+                                            return $product ? $product->number : $state;
+                                        }
+                                        return $state;
+                                    })
+                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                        // This ensures the field is reactive to changes
+                                        $productId = $get('product_id');
+                                        if ($productId && !$state) {
+                                            $product = Product::find($productId);
+                                            if ($product && $product->number) {
+                                                $set('item_number', $product->number);
+                                            }
+                                        }
+                                    })
                                     ->columnSpan(1),
                                 Forms\Components\TextInput::make('yards')
                                     ->label('Yards / الياردات')
