@@ -197,9 +197,13 @@ class InvoiceResource extends Resource
                                     ->numeric()
                                     ->required()
                                     ->step(0.01)
-                                     ->placeholder('0.00')
+                                    ->placeholder('0.00')
                                     ->suffix('yards')
                                     ->live()
+                                    ->extraInputAttributes([
+                                        'onfocus' => 'this.select()',
+                                        'onclick' => 'this.select()'
+                                    ])
                                     ->disabled(fn(Forms\Get $get) => blank($get('item_number'))) // ✅ disable if no item_number
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                         $pricePerYard = (float) $get('price_per_yard');
@@ -213,9 +217,13 @@ class InvoiceResource extends Resource
                                     ->numeric()
                                     ->required()
                                     ->step(0.01)
-                                     ->placeholder('0.00')
+                                    ->placeholder('0.00')
                                     ->prefix('SAR')
                                     ->live()
+                                    ->extraInputAttributes([
+                                        'onfocus' => 'this.select()',
+                                        'onclick' => 'this.select()'
+                                    ])
                                     ->disabled(fn(Forms\Get $get) => blank($get('item_number'))) // ✅ disable if no item_number
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                         $yards = (float) $get('yards');
