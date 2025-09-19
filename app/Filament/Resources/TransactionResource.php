@@ -324,6 +324,7 @@ class TransactionResource extends Resource
                                     ->prefix('SAR')
                                     ->disabled()
                                     ->dehydrated()
+                                    ->default('0.00')
                                     ->columnSpan(1),
                             ])
                             ->columns(6)
