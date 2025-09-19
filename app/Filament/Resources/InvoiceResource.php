@@ -204,11 +204,6 @@ class InvoiceResource extends Resource
                                     ->suffix('yards')
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        // Only calculate if we have a valid state
-                                        if ($state === null || $state === '') {
-                                            return;
-                                        }
-
                                         $pricePerYard = $get('price_per_yard');
                                         $yards = is_numeric($state) ? (float) $state : 0;
                                         $price = is_numeric($pricePerYard) ? (float) $pricePerYard : 0;
@@ -224,11 +219,6 @@ class InvoiceResource extends Resource
                                     ->prefix('SAR')
                                     ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        // Only calculate if we have a valid state
-                                        if ($state === null || $state === '') {
-                                            return;
-                                        }
-
                                         $yards = $get('yards');
                                         $price = is_numeric($state) ? (float) $state : 0;
                                         $yardsNum = is_numeric($yards) ? (float) $yards : 0;
@@ -242,6 +232,7 @@ class InvoiceResource extends Resource
                                     ->prefix('SAR')
                                     ->disabled()
                                     ->dehydrated()
+                                    ->default('0.00')
                                     ->columnSpan(1),
                             ])
                             ->columns(6)
