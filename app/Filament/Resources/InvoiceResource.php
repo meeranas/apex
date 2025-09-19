@@ -166,6 +166,9 @@ class InvoiceResource extends Resource
                                     ->options(Product::pluck('name', 'id'))
                                     ->required()
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
+                                        // Store the current price_per_yard value before making any changes
+                                        $currentPricePerYard = $get('price_per_yard');
+
                                         if ($state) {
                                             $product = Product::find($state);
                                             if ($product && $product->number) {
@@ -173,6 +176,11 @@ class InvoiceResource extends Resource
                                             }
                                         } else {
                                             $set('item_number', '');
+                                        }
+
+                                        // Preserve the price_per_yard value if it was set
+                                        if ($currentPricePerYard && is_numeric($currentPricePerYard)) {
+                                            $set('price_per_yard', $currentPricePerYard);
                                         }
 
                                         // Recalculate total if yards and price_per_yard are already set
