@@ -260,12 +260,15 @@ class TransactionResource extends Resource
                                     ->label('Yards / الياردات')
                                     ->numeric()
                                     ->required()
-                                    ->reactive()
-                                    ->default('0.00')
+                                    ->live(onBlur: true) // Enable live updates on blur
+                                    ->placeholder('0.00')
                                     ->step(0.01)
                                     ->suffix('yards')
-                                    // ->live(onBlur: true)
-                                    ->disabled(fn (Forms\Get $get) => empty($get('item_number')))
+                                    ->disabled(fn(Forms\Get $get) => empty($get('item_number')))
+                                    ->extraInputAttributes([
+                                        'onfocus' => 'this.select()',
+                                        'onclick' => 'this.select()'
+                                    ])
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                         $pricePerYard = $get('price_per_yard') ?? 0.00;
                                         // Convert to numbers before calculation
@@ -291,13 +294,17 @@ class TransactionResource extends Resource
                                 Forms\Components\TextInput::make('price_per_yard')
                                     ->label('Price per Yard / السعر بالياردة')
                                     ->numeric()
+                                    ->live(onBlur: true) // Enable live updates on blur
                                     ->required()
                                     ->reactive()
-                                    ->default('0.00')
+                                    ->placeholder('0.00')
                                     ->step(0.01)
                                     ->prefix('SAR')
-                                    ->disabled(fn (Forms\Get $get) => empty($get('item_number')))
-                                    // ->live(onBlur: true)
+                                    ->disabled(fn(Forms\Get $get) => empty($get('item_number')))
+                                    ->extraInputAttributes([
+                                        'onfocus' => 'this.select()',
+                                        'onclick' => 'this.select()'
+                                    ])
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                         $yards = $get('yards') ?? 0;
                                         // Convert to numbers before calculation
