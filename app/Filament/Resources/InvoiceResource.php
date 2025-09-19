@@ -197,6 +197,7 @@ class InvoiceResource extends Resource
                                     ->numeric()
                                     ->required()
                                     ->step(0.01)
+                                    ->default('0.00')
                                     ->suffix('yards')
                                     ->live()
                                     ->disabled(fn(Forms\Get $get) => blank($get('item_number'))) // ✅ disable if no item_number
@@ -212,6 +213,7 @@ class InvoiceResource extends Resource
                                     ->numeric()
                                     ->required()
                                     ->step(0.01)
+                                    ->default('0.00')
                                     ->prefix('SAR')
                                     ->live()
                                     ->disabled(fn(Forms\Get $get) => blank($get('item_number'))) // ✅ disable if no item_number
