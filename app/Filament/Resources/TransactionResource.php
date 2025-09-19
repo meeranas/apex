@@ -234,10 +234,9 @@ class TransactionResource extends Resource
                                     ->columnSpan(2),
                                 Forms\Components\TextInput::make('item_number')
                                     ->label('Item Number / رقم المنتج')
-                                    ->required()
                                     ->disabled()
                                     ->dehydrated()
-                                    ->live()
+                                    ->reactive()
                                     ->formatStateUsing(function ($state, $record) {
                                         // If we're editing and have a record, get the product number
                                         if ($record && $record->product_id) {
@@ -261,9 +260,11 @@ class TransactionResource extends Resource
                                     ->label('Yards / الياردات')
                                     ->numeric()
                                     ->required()
+                                    ->reactive()
                                     ->step(0.01)
                                     ->suffix('yards')
-                                    ->live(onBlur: true)
+                                    // ->live(onBlur: true)
+                                    ->disabled(fn (Forms\Get $get) => empty($get('item_number')))
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                         $pricePerYard = $get('price_per_yard') ?? 0;
                                         // Convert to numbers before calculation
@@ -290,9 +291,11 @@ class TransactionResource extends Resource
                                     ->label('Price per Yard / السعر بالياردة')
                                     ->numeric()
                                     ->required()
+                                    ->reactive()
                                     ->step(0.01)
                                     ->prefix('SAR')
-                                    ->live(onBlur: true)
+                                    ->disabled(fn (Forms\Get $get) => empty($get('item_number')))
+                                    // ->live(onBlur: true)
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                         $yards = $get('yards') ?? 0;
                                         // Convert to numbers before calculation
