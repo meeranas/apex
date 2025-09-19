@@ -177,24 +177,14 @@ class InvoiceResource extends Resource
                                         }
                                     })
                                     ->columnSpan(2),
+
                                 Forms\Components\TextInput::make('item_number')
                                     ->label('Item Number / رقم المنتج')
-                                    ->disabled()
+                                    ->numeric()
+                                    ->required()
+                                    ->readOnly()
                                     ->dehydrated()
-                                    ->formatStateUsing(function ($state, $record) {
-                                        // If we have a state (item_number), use it
-                                        if ($state) {
-                                            return $state;
-                                        }
-
-                                        // If we're editing and have a product_id, get the product number
-                                        if ($record && isset($record['product_id'])) {
-                                            $product = Product::find($record['product_id']);
-                                            return $product ? $product->number : '';
-                                        }
-
-                                        return '';
-                                    })
+                                    ->live()
                                     ->columnSpan(1),
                                 Forms\Components\TextInput::make('yards')
                                     ->label('Yards / الياردات')
