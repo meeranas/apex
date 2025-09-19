@@ -202,7 +202,7 @@ class InvoiceResource extends Resource
                                     ->required()
                                     ->step(0.01)
                                     ->suffix('yards')
-                                    ->live(onBlur: true)
+                                    ->live()
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                         $pricePerYard = $get('price_per_yard');
                                         $yards = is_numeric($state) ? (float) $state : 0;
@@ -217,7 +217,7 @@ class InvoiceResource extends Resource
                                     ->required()
                                     ->step(0.01)
                                     ->prefix('SAR')
-                                    ->live(onBlur: true)
+                                    ->live()
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
                                         $yards = $get('yards');
                                         $price = is_numeric($state) ? (float) $state : 0;
