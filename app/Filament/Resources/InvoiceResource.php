@@ -165,13 +165,11 @@ class InvoiceResource extends Resource
                                     ->preload()
                                     ->options(Product::pluck('name', 'id'))
                                     ->required()
-                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        // Only update the item number, don't interfere with other fields
+                                    ->reactive() // important for triggering updates
+                                    ->afterStateUpdated(function ($state, Forms\Set $set) {
                                         if ($state) {
                                             $product = Product::find($state);
-                                            if ($product && $product->number) {
-                                                $set('item_number', $product->number);
-                                            }
+                                            $set('item_number', $product?->number ?? '');
                                         } else {
                                             $set('item_number', '');
                                         }
@@ -180,29 +178,20 @@ class InvoiceResource extends Resource
 
                                 Forms\Components\TextInput::make('item_number')
                                     ->label('Item Number / رقم المنتج')
-                                    ->required()
                                     ->disabled()
                                     ->dehydrated()
-                                    ->live()
+                                    ->reactive()
+                                    ->default('')
                                     ->formatStateUsing(function ($state, $record) {
-                                        // If we're editing and have a record, get the product number
                                         if ($record && $record->product_id) {
                                             $product = Product::find($record->product_id);
-                                            return $product ? $product->number : $state;
+                                            return $product?->number ?? $state;
                                         }
                                         return $state;
                                     })
-                                    ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        // This ensures the field is reactive to changes
-                                        $productId = $get('product_id');
-                                        if ($productId && !$state) {
-                                            $product = Product::find($productId);
-                                            if ($product && $product->number) {
-                                                $set('item_number', $product->number);
-                                            }
-                                        }
-                                    })
                                     ->columnSpan(1),
+
+
                                 Forms\Components\TextInput::make('yards')
                                     ->label('Yards / الياردات')
                                     ->numeric()
@@ -210,14 +199,14 @@ class InvoiceResource extends Resource
                                     ->step(0.01)
                                     ->suffix('yards')
                                     ->live()
+                                    ->disabled(fn(Forms\Get $get) => blank($get('item_number'))) // ✅ disable if no item_number
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        $pricePerYard = $get('price_per_yard');
-                                        $yards = is_numeric($state) ? (float) $state : 0;
-                                        $price = is_numeric($pricePerYard) ? (float) $pricePerYard : 0;
-                                        $total = $yards * $price;
-                                        $set('total', number_format($total, 2, '.', ''));
+                                        $pricePerYard = (float) $get('price_per_yard');
+                                        $yards = (float) $state;
+                                        $set('total', number_format($yards * $pricePerYard, 2, '.', ''));
                                     })
                                     ->columnSpan(1),
+
                                 Forms\Components\TextInput::make('price_per_yard')
                                     ->label('Price per Yard / السعر بالياردة')
                                     ->numeric()
@@ -225,21 +214,14 @@ class InvoiceResource extends Resource
                                     ->step(0.01)
                                     ->prefix('SAR')
                                     ->live()
-                                    ->formatStateUsing(function ($state, $record) {
-                                        // If we're editing and have a record, get the existing price_per_yard value
-                                        if ($record && isset($record->price_per_yard)) {
-                                            return $record->price_per_yard;
-                                        }
-                                        return $state;
-                                    })
+                                    ->disabled(fn(Forms\Get $get) => blank($get('item_number'))) // ✅ disable if no item_number
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        $yards = $get('yards');
-                                        $price = is_numeric($state) ? (float) $state : 0;
-                                        $yardsNum = is_numeric($yards) ? (float) $yards : 0;
-                                        $total = $yardsNum * $price;
-                                        $set('total', number_format($total, 2, '.', ''));
+                                        $yards = (float) $get('yards');
+                                        $price = (float) $state;
+                                        $set('total', number_format($yards * $price, 2, '.', ''));
                                     })
                                     ->columnSpan(1),
+
                                 Forms\Components\TextInput::make('total')
                                     ->label('Total / المجموع')
                                     ->numeric()
@@ -249,6 +231,7 @@ class InvoiceResource extends Resource
                                     ->default('0.00')
                                     ->columnSpan(1),
                             ])
+
                             ->columns(6)
                             ->addActionLabel('Add Item / إضافة منتج')
                             ->defaultItems(1)
