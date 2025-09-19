@@ -166,11 +166,7 @@ class InvoiceResource extends Resource
                                     ->options(Product::pluck('name', 'id'))
                                     ->required()
                                     ->afterStateUpdated(function ($state, Forms\Set $set, Forms\Get $get) {
-                                        // Store current values before making any changes
-                                        $currentYards = $get('yards');
-                                        $currentPricePerYard = $get('price_per_yard');
-                                        $currentTotal = $get('total');
-
+                                        // Only update the item number, don't interfere with other fields
                                         if ($state) {
                                             $product = Product::find($state);
                                             if ($product && $product->number) {
@@ -178,25 +174,6 @@ class InvoiceResource extends Resource
                                             }
                                         } else {
                                             $set('item_number', '');
-                                        }
-
-                                        // Preserve existing values if they were already set
-                                        if ($currentYards && is_numeric($currentYards)) {
-                                            $set('yards', $currentYards);
-                                        }
-                                        if ($currentPricePerYard && is_numeric($currentPricePerYard)) {
-                                            $set('price_per_yard', $currentPricePerYard);
-                                        }
-
-                                        // Only recalculate total if both yards and price_per_yard are numeric
-                                        $yards = $get('yards');
-                                        $pricePerYard = $get('price_per_yard');
-                                        if (is_numeric($yards) && is_numeric($pricePerYard) && $yards > 0 && $pricePerYard > 0) {
-                                            $total = (float) $yards * (float) $pricePerYard;
-                                            $set('total', number_format($total, 2, '.', ''));
-                                        } else if ($currentTotal && is_numeric($currentTotal)) {
-                                            // Preserve existing total if we can't recalculate
-                                            $set('total', $currentTotal);
                                         }
                                     })
                                     ->columnSpan(2),
