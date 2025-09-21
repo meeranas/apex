@@ -12,11 +12,9 @@ use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Transaction;
 use App\Models\Issuer;
-use App\Models\City;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Section;
-use App\Filament\Widgets\ComprehensiveDashboardWidget;
-use App\Filament\Widgets\IssuerStatsTableWidget;
+use App\Filament\Widgets\FilteredStatsOverview;
 use Illuminate\Support\Facades\Auth;
 
 class Dashboard extends BaseDashboard implements HasForms
@@ -62,58 +60,28 @@ class Dashboard extends BaseDashboard implements HasForms
                             ->afterStateUpdated(fn() => $this->updateStatsWidget())
                             ->visible($isAdmin),
 
-                        Select::make('customer')
-                            ->label('Customer / العميل')
-                            ->options(function () use ($isAdmin, $user) {
-                                if ($isAdmin) {
-                                    return Customer::with('issuer')->get()->mapWithKeys(function ($customer) {
-                                        return [$customer->id => $customer->customer_name . ' (' . $customer->issuer->full_name . ')'];
-                                    })->toArray();
-                                }
+                        // Select::make('city')
+                        //     ->label('City / المدينة')
+                        //     ->options(function () use ($isAdmin, $user) {
+                        //         if ($isAdmin) {
+                        //             return Customer::distinct()->pluck('city', 'city')->toArray();
+                        //         }
 
-                                if ($user && $user->hasRole('issuer') && $user->issuer) {
-                                    $issuer = $user->issuer;
-                                    $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
-                                    return Customer::whereIn('issuer_id', $viewableIssuerIds)
-                                        ->with('issuer')
-                                        ->get()
-                                        ->mapWithKeys(function ($customer) {
-                                            return [$customer->id => $customer->customer_name . ' (' . $customer->issuer->full_name . ')'];
-                                        })->toArray();
-                                }
+                        //         if ($user && $user->hasRole('issuer') && $user->issuer) {
+                        //             $issuer = $user->issuer;
+                        //             $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
+                        //             return Customer::whereIn('issuer_id', $viewableIssuerIds)
+                        //                 ->distinct()
+                        //                 ->pluck('city', 'city')
+                        //                 ->toArray();
+                        //         }
 
-                                return [];
-                            })
-                            ->placeholder('Select Customer / اختر العميل')
-                            ->searchable()
-                            ->reactive()
-                            ->afterStateUpdated(fn() => $this->updateStatsWidget()),
-
-                        Select::make('city')
-                            ->label('City / المدينة')
-                            ->options(function () use ($isAdmin, $user) {
-                                if ($isAdmin) {
-                                    return City::pluck('name', 'id')->toArray();
-                                }
-
-                                if ($user && $user->hasRole('issuer') && $user->issuer) {
-                                    $issuer = $user->issuer;
-                                    $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
-                                    return Customer::whereIn('issuer_id', $viewableIssuerIds)
-                                        ->with('city')
-                                        ->get()
-                                        ->pluck('city.name', 'city.id')
-                                        ->filter()
-                                        ->unique()
-                                        ->toArray();
-                                }
-
-                                return [];
-                            })
-                            ->placeholder('Select City / اختر المدينة')
-                            ->searchable()
-                            ->reactive()
-                            ->afterStateUpdated(fn() => $this->updateStatsWidget()),
+                        //         return [];
+                        //     })
+                        //     ->placeholder('Select City / اختر المدينة')
+                        //     ->searchable()
+                        //     ->reactive()
+                        //     ->afterStateUpdated(fn() => $this->updateStatsWidget()),
 
                         DatePicker::make('due_date_from')
                             ->label('Due Date From / تاريخ الاستحقاق من')
@@ -125,7 +93,7 @@ class Dashboard extends BaseDashboard implements HasForms
                             ->reactive()
                             ->afterStateUpdated(fn() => $this->updateStatsWidget()),
                     ])
-                    ->columns(5)
+                    ->columns(4)
                     ->collapsible()
                     ->collapsed(false)
                     ->persistCollapsed()
@@ -150,20 +118,18 @@ class Dashboard extends BaseDashboard implements HasForms
     public function getWidgets(): array
     {
         return [
-            ComprehensiveDashboardWidget::class,
-            IssuerStatsTableWidget::class,
+            FilteredStatsOverview::class,
         ];
     }
 
     /**
-     * Emit current filter state to the stats widget only
-     * IssuerStatsTableWidget is not affected by filters
+     * Emit current filter state to the stats widget
      */
     protected function updateStatsWidget(): void
     {
         $this->dispatch(
             'updateFilters',
             filters: $this->form->getState()
-        )->to(\App\Filament\Widgets\ComprehensiveDashboardWidget::class);
+        )->to(\App\Filament\Widgets\FilteredStatsOverview::class);
     }
 }
