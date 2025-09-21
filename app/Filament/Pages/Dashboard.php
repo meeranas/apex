@@ -155,6 +155,17 @@ class Dashboard extends BaseDashboard implements HasForms
         ];
     }
 
+    public function getColumns(): int|string|array
+    {
+        return [
+            'xl' => 4, // 4 columns on extra large screens
+            'lg' => 4, // 4 columns on large screens
+            'md' => 4, // 4 columns on medium screens
+            'sm' => 2, // 2 columns on small screens
+            'default' => 1, // 1 column on mobile
+        ];
+    }
+
     /**
      * Emit current filter state to the stats widget only
      * IssuerStatsTableWidget is not affected by filters

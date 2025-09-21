@@ -89,62 +89,45 @@ class ComprehensiveDashboardWidget extends BaseWidget
         
         $remainingBalance = $filteredCustomers->sum('current_balance');
         $customersWithRemainingBalance = $filteredCustomers->where('current_balance', '>', 0)->count();
-        $activeCustomers = $filteredCustomers->where('current_balance', '>', 0)->count();
         
         // Calculate payment percentage
         $paymentPercentage = $totalDueAmounts > 0 ? (($totalPayments + $totalDiscounts + $totalReturnedGoods) / $totalDueAmounts) * 100 : 0;
 
-        // Calculate overdue balances (customers with positive current balance)
-        $overdueBalances = $filteredCustomers->where('current_balance', '>', 0)->sum('current_balance');
-
         return [
-            // 1. Overall Balances (أجمالي الأرصدة)
-            Stat::make('Overall Balances / أجمالي الأرصدة', number_format($remainingBalance, 2))
-                ->description('Current remaining balances / الأرصدة المتبقية الحالية')
-                ->descriptionIcon('heroicon-m-banknotes')
-                ->color($remainingBalance < 0 ? 'danger' : ($remainingBalance > 0 ? 'warning' : 'success')),
-
-            // 2. Overall Debit (أجمالي التحصيل)
-            Stat::make('Overall Debit / أجمالي التحصيل', number_format($totalPayments, 2))
-                ->description('Total payments collected / إجمالي المدفوعات المحصلة')
-                ->descriptionIcon('heroicon-m-credit-card')
-                ->color('success'),
-
-            // 3. Overall Discount (أجمالي الخصم)
-            Stat::make('Overall Discount / أجمالي الخصم', number_format($totalDiscounts, 2))
-                ->description('Total discounts given / إجمالي الخصومات الممنوحة')
-                ->descriptionIcon('heroicon-m-tag')
-                ->color('info'),
-
-            // 4. Overall Return (أجمالي المرتجع)
-            Stat::make('Overall Return / أجمالي المرتجع', number_format($totalReturnedGoods, 2))
-                ->description('Total returned goods / إجمالي البضائع المرتجعة')
-                ->descriptionIcon('heroicon-m-arrow-uturn-left')
-                ->color('gray'),
-
-            // 5. % of Payments (نسبة المدفوع)
-            Stat::make('% of Payments / نسبة المدفوع', number_format($paymentPercentage, 2) . '%')
-                ->description('Payment completion percentage / نسبة إتمام الدفع')
+            Stat::make('Payment Percentage / نسبة الدفع', number_format($paymentPercentage, 2) . '%')
+                ->description('Overall payment completion / إجمالي إتمام الدفع')
                 ->descriptionIcon('heroicon-m-check-circle')
                 ->color($paymentPercentage >= 80 ? 'success' : ($paymentPercentage >= 50 ? 'warning' : 'danger')),
 
-            // 6. Due Balances (أجمالي الأرصدة المتاخرة)
-            Stat::make('Due Balances / أجمالي الأرصدة المتاخرة', number_format($overdueBalances, 2))
-                ->description('Overdue balances / الأرصدة المتأخرة')
-                ->descriptionIcon('heroicon-m-exclamation-triangle')
-                ->color($overdueBalances > 0 ? 'danger' : 'success'),
-
-            // 7. # of Active Customers (عدد العملاء النشيطين)
-            Stat::make('# of Active Customers / عدد العملاء النشيطين', $activeCustomers)
-                ->description('Customers with outstanding balances / العملاء ذوو الأرصدة المستحقة')
+            Stat::make('Customers with Remaining Balance / العملاء ذوو الرصيد المتبقي', $customersWithRemainingBalance)
+                ->description('Customers who owe money / العملاء المدينون')
                 ->descriptionIcon('heroicon-m-users')
-                ->color($activeCustomers > 0 ? 'warning' : 'success'),
+                ->color($customersWithRemainingBalance > 0 ? 'warning' : 'success'),
 
-            // 8. Overall Old Balance (أجمالي الأرصدة السابقة)
-            Stat::make('Overall Old Balance / أجمالي الأرصدة السابقة', number_format($totalOldBalance, 2))
+            Stat::make('Overall Old Balance / إجمالي الرصيد القديم', number_format($totalOldBalance, 2))
                 ->description('Total old balance / إجمالي الرصيد القديم')
-                ->descriptionIcon('heroicon-m-clock')
+                ->descriptionIcon('heroicon-m-banknotes')
                 ->color('info'),
+
+            Stat::make('Overall New Balance / إجمالي الرصيد الجديد', number_format($totalNewInvoices, 2))
+                ->description('Total from new invoices / إجمالي من الفواتير الجديدة')
+                ->descriptionIcon('heroicon-m-document-text')
+                ->color('primary'),
+
+            Stat::make('Overall Due Amounts / إجمالي المبالغ المستحقة', number_format($totalDueAmounts, 2))
+                ->description('Total due amounts / إجمالي المبالغ المستحقة')
+                ->descriptionIcon('heroicon-m-exclamation-triangle')
+                ->color('warning'),
+
+            Stat::make('Overall Discounts / إجمالي الخصومات', number_format($totalDiscounts, 2))
+                ->description('Total discounts given / إجمالي الخصومات الممنوحة')
+                ->descriptionIcon('heroicon-m-tag')
+                ->color('success'),
+
+            Stat::make('Overall Return Goods / إجمالي المرتجع', number_format($totalReturnedGoods, 2))
+                ->description('Total returned goods / إجمالي البضائع المرتجعة')
+                ->descriptionIcon('heroicon-m-arrow-uturn-left')
+                ->color('gray'),
         ];
     }
 }

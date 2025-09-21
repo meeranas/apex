@@ -61,6 +61,26 @@ class AdminPanelProvider extends PanelProvider
             ->renderHook(
                 'panels::head.end',
                 fn(): string => '<style>
+                    /* Force 4 columns for stats overview widget */
+                    .filament-widgets-stats-overview-widget {
+                        display: grid !important;
+                        grid-template-columns: repeat(4, 1fr) !important;
+                        gap: 1.5rem !important;
+                    }
+
+                    /* Responsive adjustments */
+                    @media (max-width: 1024px) {
+                        .filament-widgets-stats-overview-widget {
+                            grid-template-columns: repeat(2, 1fr) !important;
+                        }
+                    }
+
+                    @media (max-width: 640px) {
+                        .filament-widgets-stats-overview-widget {
+                            grid-template-columns: 1fr !important;
+                        }
+                    }
+
                     /* Target Filament table headers specifically */
                     .fi-ta-table th {
                         line-height: 1.2 !important;
