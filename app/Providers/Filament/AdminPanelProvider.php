@@ -83,10 +83,17 @@ class AdminPanelProvider extends PanelProvider
 
                     /* Left Border for Sidebar */
                     .fi-sidebar {
-                         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
-                        border-radius: 0.75rem !important;
+                        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+                       
                         border: 1px solid rgb(229 231 235) !important;
                         background-color: rgb(255 255 255) !important;
+                    }
+
+                    /* Dark theme */
+                    .dark .fi-sidebar {
+                        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3) !important;
+                        border: 1px solid rgb(55 65 81) !important;
+                        background-color: rgb(17 24 39) !important;
                     }
 
                     /* Enhanced Shadow Styling for All Panels */
