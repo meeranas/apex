@@ -94,16 +94,17 @@ class ReportPdfService
             'generated_at' => now()->format('Y-m-d H:i:s'),
         ];
 
-        // Configure PDF with proper encoding
+        // Configure PDF with Amiri font support
         $pdf = Pdf::loadView('filament.pdf.comprehensive-report', $data);
         $pdf->setPaper('A4', 'landscape');
+
+        // Set DOMPDF options to use the correct font directory
         $pdf->setOptions([
             'isHtml5ParserEnabled' => true,
             'isRemoteEnabled' => true,
-            'defaultFont' => 'DejaVu Sans',
-            'isPhpEnabled' => true,
+            'defaultFont' => 'Amiri',
+            'isPhpEnabled' => false,
             'isJavascriptEnabled' => false,
-            'isRemoteEnabled' => true,
             'debugKeepTemp' => false,
             'debugCss' => false,
             'debugLayout' => false,
@@ -116,6 +117,8 @@ class ReportPdfService
             'isUnicode' => true,
             'defaultPaperSize' => 'a4',
             'defaultPaperOrientation' => 'landscape',
+            'fontDir' => base_path('vendor/dompdf/dompdf/lib/fonts/'),
+            'fontCache' => base_path('vendor/dompdf/dompdf/lib/fonts/'),
         ]);
 
         return $pdf->download('comprehensive-report-' . now()->format('Y-m-d-H-i-s') . '.pdf');
@@ -126,12 +129,12 @@ class ReportPdfService
         if (is_null($string)) {
             return '';
         }
-        
+
         // Convert to UTF-8 if not already
         if (!mb_check_encoding($string, 'UTF-8')) {
             $string = mb_convert_encoding($string, 'UTF-8', 'auto');
         }
-        
+
         return $string;
     }
 
