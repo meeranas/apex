@@ -79,7 +79,9 @@ class ProductResource extends Resource
                 Tables\Columns\TextColumn::make('number')
                     ->label('Number ' . PHP_EOL . 'الرقم')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+
 
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Created At ' . PHP_EOL . 'تاريخ الإنشاء')
@@ -88,8 +90,15 @@ class ProductResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('id')
+                    ->label('Product / المنتج')
+                    ->options(
+                        Product::pluck('name', 'id')->toArray()
+                    )
+                    ->searchable()
+                    ->preload(),
             ])
+
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),

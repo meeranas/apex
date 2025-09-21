@@ -81,6 +81,86 @@ class AdminPanelProvider extends PanelProvider
                         }
                     }
 
+                    /* Left Border for Sidebar */
+                    .fi-sidebar {
+                         box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+                        border-radius: 0.75rem !important;
+                        border: 1px solid rgb(229 231 235) !important;
+                        background-color: rgb(255 255 255) !important;
+                    }
+
+                    /* Enhanced Shadow Styling for All Panels */
+                    .fi-ta-ctn,
+                    .fi-section,
+                    .fi-widget,
+                    .fi-card,
+                    .fi-panel,
+                    .filament-tables-table-container,
+                    .filament-widget,
+                    .filament-stats-overview-widget .filament-stats-overview-widget-stat,
+                    .fi-stats-overview-widget .fi-stats-overview-widget-stat,
+                    .fi-statsoverview-card,
+                    /* .fi-section-content-ctn, */
+                    .fi-section-header-ctn,
+                    .fi-fieldset-ctn {
+                        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+                        border-radius: 0.75rem !important;
+                        border: 1px solid rgb(229 231 235) !important;
+                        background-color: rgb(255 255 255) !important;
+                    }
+
+                    /* Dark mode shadow styling */
+                    .dark .fi-ta-ctn,
+                    .dark .fi-section,
+                    .dark .fi-widget,
+                    .dark .fi-card,
+                    .dark .fi-panel,
+                    .dark .filament-tables-table-container,
+                    .dark .filament-widget,
+                    .dark .filament-stats-overview-widget .filament-stats-overview-widget-stat,
+                    .dark .fi-stats-overview-widget .fi-stats-overview-widget-stat,
+                    .dark .fi-statsoverview-card,
+                    /* .dark .fi-section-content-ctn, */
+                    .dark .fi-section-header-ctn,
+                    .dark .fi-fieldset-ctn {
+                        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3) !important;
+                        border: 1px solid rgb(55 65 81) !important;
+                        background-color: rgb(17 24 39) !important;
+                    }
+
+                    /* Enhanced widget shadows */
+                    .fi-widget-heading,
+                    .fi-widget-content,
+                    .filament-widget .filament-widget-heading,
+                    .filament-widget .filament-widget-content {
+                        border-radius: 0.5rem !important;
+                    }
+
+                    /* Table specific shadow enhancements */
+                    .fi-ta-table,
+                    .filament-tables-table {
+                        border-radius: 0.75rem !important;
+                        overflow: hidden !important;
+                    }
+
+                    /* Form section shadows */
+                    .fi-form-section,
+                    .fi-form-section-content,
+                    .filament-forms-section-component {
+                        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1) !important;
+                        border-radius: 0.75rem !important;
+                        border: 1px solid rgb(229 231 235) !important;
+                        background-color: rgb(255 255 255) !important;
+                    }
+
+                    .dark .fi-form-section,
+                    .dark .fi-form-section-content,
+                    .dark .filament-forms-section-component {
+                        box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.3), 0 1px 2px -1px rgb(0 0 0 / 0.3) !important;
+                        border: 1px solid rgb(55 65 81) !important;
+                        background-color: rgb(17 24 39) !important;
+                    }
+
                     /* Target Filament table headers specifically */
                     .fi-ta-table th {
                         line-height: 1.2 !important;

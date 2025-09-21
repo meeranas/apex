@@ -69,7 +69,16 @@ class CityResource extends Resource
                     ->label('Created At ' . PHP_EOL . 'تاريخ الإنشاء')
                     ->dateTime()
                     ->sortable()
-                // ->toggleable(isToggledHiddenByDefault: true),
+                    ->toggleable(isToggledHiddenByDefault: false),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('id')
+                    ->label('City / المدينة')
+                    ->options(
+                        City::pluck('name', 'id')->toArray()
+                    )
+                    ->searchable()
+                    ->preload(),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
