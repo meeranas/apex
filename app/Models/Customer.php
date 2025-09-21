@@ -15,7 +15,7 @@ class Customer extends Model
         'issuer_id',
         'customer_name',
         'account_number',
-        'city_id', // Keep only city_id, remove 'city'
+        'city_id',
         'representative_name',
         'mobile_number',
         'address',
@@ -25,11 +25,15 @@ class Customer extends Model
 
     protected $casts = [
         'old_balance' => 'decimal:2',
-        'payment_percentage' => 'decimal:2',
-        'overall_payments' => 'decimal:2',
-        'overall_discount' => 'decimal:2',
-        'overall_returned_goods' => 'decimal:2',
-        'overall_invoices' => 'decimal:2',
+    ];
+
+    protected $appends = [
+        'overall_payments',
+        'overall_discount',
+        'overall_returned_goods',
+        'overall_invoices',
+        'current_balance',
+        'calculated_payment_percentage',
     ];
 
     public function issuer(): BelongsTo
@@ -109,16 +113,5 @@ class Customer extends Model
         }
 
         return ($this->current_balance / $overallInvoices) * 100;
-    }
-
-    // Method to update calculated fields
-    public function updateCalculatedFields()
-    {
-        $this->overall_payments = $this->getOverallPaymentsAttribute();
-        $this->overall_discount = $this->getOverallDiscountAttribute();
-        $this->overall_returned_goods = $this->getOverallReturnedGoodsAttribute();
-        $this->overall_invoices = $this->getOverallInvoicesAttribute();
-        $this->calculated_payment_percentage = $this->getCalculatedPaymentPercentageAttribute();
-        $this->save();
     }
 }
