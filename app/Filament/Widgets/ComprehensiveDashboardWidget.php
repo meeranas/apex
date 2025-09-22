@@ -10,9 +10,16 @@ use App\Models\City;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\HtmlString;
 
 class ComprehensiveDashboardWidget extends BaseWidget
 {
+    protected int|string|array $columnSpan = 'full'; // spans full width
+
+    protected function getColumns(): int
+    {
+        return 4; // ✅ Always 4 columns (desktop, tablet, mobile)
+    }
     protected $listeners = [
         'refreshWidget' => '$refresh',
         'updateFilters' => 'setFilters',
@@ -30,7 +37,7 @@ class ComprehensiveDashboardWidget extends BaseWidget
     {
         $user = Auth::user();
         $isAdmin = $user && $user->hasRole('admin');
-        
+
         $filters = $this->filters ?? [];
 
         // Base queries with role-based filtering
@@ -42,7 +49,7 @@ class ComprehensiveDashboardWidget extends BaseWidget
         if (!$isAdmin && $user && $user->hasRole('issuer') && $user->issuer) {
             $issuer = $user->issuer;
             $viewableIssuerIds = $issuer->getAllViewableIssuers()->pluck('id');
-            
+
             $customerQuery->whereIn('issuer_id', $viewableIssuerIds);
             $invoiceQuery->whereIn('issuer_id', $viewableIssuerIds);
             $transactionQuery->whereIn('issuer_id', $viewableIssuerIds);
@@ -86,11 +93,11 @@ class ComprehensiveDashboardWidget extends BaseWidget
         $totalOldBalance = $filteredCustomers->sum('old_balance');
         $totalNewInvoices = $filteredCustomers->sum('overall_invoices');
         $totalDueAmounts = $totalNewInvoices + $totalOldBalance;
-        
+
         $remainingBalance = $filteredCustomers->sum('current_balance');
         $customersWithRemainingBalance = $filteredCustomers->where('current_balance', '>', 0)->count();
         $activeCustomers = $filteredCustomers->where('current_balance', '>', 0)->count();
-        
+
         // Calculate payment percentage
         $paymentPercentage = $totalDueAmounts > 0 ? (($totalPayments + $totalDiscounts + $totalReturnedGoods) / $totalDueAmounts) * 100 : 0;
 
@@ -99,52 +106,64 @@ class ComprehensiveDashboardWidget extends BaseWidget
 
         return [
             // 1. Overall Balances (أجمالي الأرصدة)
-            Stat::make('Overall Balances / أجمالي الأرصدة', number_format($remainingBalance, 2))
-                ->description('Current remaining balances / الأرصدة المتبقية الحالية')
-                ->descriptionIcon('heroicon-m-banknotes')
-                ->color($remainingBalance < 0 ? 'danger' : ($remainingBalance > 0 ? 'warning' : 'success')),
+            Stat::make('', number_format($remainingBalance, 2))
+                ->description(new HtmlString("Overall Balances<br>أجمالي الأرصدة"))
+                ->color(
+                    $remainingBalance < 0
+                    ? 'danger'
+                    : ($remainingBalance > 0 ? 'warning' : 'success')
+                )
+                ->extraAttributes([
+                    'class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-red-600 [&_.fi-stats-overview-stat-value]:font-bold [&_.fi-stats-overview-stat-value]:text-3xl',
+                ]),
 
             // 2. Overall Debit (أجمالي التحصيل)
-            Stat::make('Overall Debit / أجمالي التحصيل', number_format($totalPayments, 2))
-                ->description('Total payments collected / إجمالي المدفوعات المحصلة')
-                ->descriptionIcon('heroicon-m-credit-card')
-                ->color('success'),
+            Stat::make('', number_format($totalPayments, 2))
+                ->description(new HtmlString("Overall Debit<br>أجمالي التحصيل"))
+                ->color('success')
+                ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 3. Overall Discount (أجمالي الخصم)
-            Stat::make('Overall Discount / أجمالي الخصم', number_format($totalDiscounts, 2))
-                ->description('Total discounts given / إجمالي الخصومات الممنوحة')
-                ->descriptionIcon('heroicon-m-tag')
-                ->color('info'),
+            Stat::make('', number_format($totalDiscounts, 2))
+                ->description(new HtmlString("Overall Discount<br>أجمالي الخصم"))
+                ->color('info')
+                ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 4. Overall Return (أجمالي المرتجع)
-            Stat::make('Overall Return / أجمالي المرتجع', number_format($totalReturnedGoods, 2))
-                ->description('Total returned goods / إجمالي البضائع المرتجعة')
-                ->descriptionIcon('heroicon-m-arrow-uturn-left')
-                ->color('gray'),
+            Stat::make('', number_format($totalReturnedGoods, 2))
+                ->description(new HtmlString("Overall Return<br>أجمالي المرتجع"))
+                ->color('gray')
+                ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 5. % of Payments (نسبة المدفوع)
-            Stat::make('% of Payments / نسبة المدفوع', number_format($paymentPercentage, 2) . '%')
-                ->description('Payment completion percentage / نسبة إتمام الدفع')
-                ->descriptionIcon('heroicon-m-check-circle')
-                ->color($paymentPercentage >= 80 ? 'success' : ($paymentPercentage >= 50 ? 'warning' : 'danger')),
+            Stat::make('', number_format($paymentPercentage, 2) . '%')
+                ->description(new HtmlString("% of Payments<br>نسبة المدفوع"))
+                ->color(
+                    $paymentPercentage >= 80 ? 'success'
+                    : ($paymentPercentage >= 50 ? 'warning' : 'danger')
+                )
+                ->extraAttributes([
+                    'class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-red-600 [&_.fi-stats-overview-stat-value]:font-bold [&_.fi-stats-overview-stat-value]:text-3xl',
+                ]),
 
             // 6. Due Balances (أجمالي الأرصدة المتاخرة)
-            Stat::make('Due Balances / أجمالي الأرصدة المتاخرة', number_format($overdueBalances, 2))
-                ->description('Overdue balances / الأرصدة المتأخرة')
-                ->descriptionIcon('heroicon-m-exclamation-triangle')
-                ->color($overdueBalances > 0 ? 'danger' : 'success'),
+            Stat::make('', number_format($overdueBalances, 2))
+                ->description(new HtmlString("Due Balances<br>أجمالي الأرصدة المتاخرة"))
+                ->color($overdueBalances > 0 ? 'danger' : 'success')
+                ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 7. # of Active Customers (عدد العملاء النشيطين)
-            Stat::make('# of Active Customers / عدد العملاء النشيطين', $activeCustomers)
-                ->description('Customers with outstanding balances / العملاء ذوو الأرصدة المستحقة')
-                ->descriptionIcon('heroicon-m-users')
-                ->color($activeCustomers > 0 ? 'warning' : 'success'),
+            Stat::make('', $activeCustomers)
+                ->description(new HtmlString("# of Active Customers<br>عدد العملاء النشيطين"))
+                ->color($activeCustomers > 0 ? 'warning' : 'success')
+                ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 8. Overall Old Balance (أجمالي الأرصدة السابقة)
-            Stat::make('Overall Old Balance / أجمالي الأرصدة السابقة', number_format($totalOldBalance, 2))
-                ->description('Total old balance / إجمالي الرصيد القديم')
-                ->descriptionIcon('heroicon-m-clock')
-                ->color('info'),
+            Stat::make('', number_format($totalOldBalance, 2))
+                ->description(new HtmlString("Overall Old Balance<br>أجمالي الأرصدة السابقة"))
+                ->color('info')
+                ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
         ];
+
     }
 }
