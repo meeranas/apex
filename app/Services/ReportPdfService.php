@@ -101,8 +101,8 @@ class ReportPdfService
             'default_font' => 'dejavusans', // Supports Arabic and English
             'margin_left' => 20,
             'margin_right' => 20,
-            'margin_top' => 60,
-            'margin_bottom' => 60,
+            'margin_top' => 20,
+            'margin_bottom' => 20,
             'margin_header' => 10,
             'margin_footer' => 10,
             'autoScriptToLang' => true,
