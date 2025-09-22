@@ -342,9 +342,6 @@
                 </div>
             </div>
         </div>
-        <div class="footer">
-            <div class="tagline english-text">Generated on {{ $generated_at ?? now()->format('d-m-Y') }} | Apex</div>
-        </div>
     </div>
 </body>
 
