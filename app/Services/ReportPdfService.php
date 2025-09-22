@@ -94,23 +94,36 @@ class ReportPdfService
             'generated_at' => now()->format('Y-m-d H:i:s'),
         ];
 
-        // Configure mPDF with LTR support
+        // Configure mPDF with proper margins and headers/footers
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4-L', // Landscape
             'default_font' => 'dejavusans', // Supports Arabic and English
-            'margin_left' => 15,
-            'margin_right' => 15,
-            'margin_top' => 16,
-            'margin_bottom' => 16,
-            'margin_header' => 9,
-            'margin_footer' => 9,
+            'margin_left' => 20,
+            'margin_right' => 20,
+            'margin_top' => 60,
+            'margin_bottom' => 60,
+            'margin_header' => 10,
+            'margin_footer' => 10,
             'autoScriptToLang' => true,
             'autoLangToFont' => true,
         ]);
 
         // Set LTR direction for the entire document
         $mpdf->SetDirectionality('ltr');
+
+        // Set header and footer
+        $mpdf->SetHTMLHeader('
+            <div style="text-align: center; font-family: Inter, sans-serif; font-size: 16px; font-weight: 700; color: #1f2937; padding: 10px 0; border-bottom: 1px solid #e5e7eb;">
+                Report / تقرير
+            </div>
+        ');
+
+        $mpdf->SetHTMLFooter('
+            <div style="text-align: center; font-family: Inter, sans-serif; font-size: 10px; color: #6b7280; padding: 10px 0; border-top: 1px solid #e5e7eb;">
+                Page {PAGENO} of {nbpg} | Generated on ' . now()->format('d-m-Y H:i:s') . ' | Apex
+            </div>
+        ');
 
         // Load the view and convert to HTML
         $html = view('filament.pdf.comprehensive-report', $data)->render();
