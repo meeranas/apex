@@ -99,10 +99,10 @@ class ReportPdfService
             'mode' => 'utf-8',
             'format' => 'A4-L', // Landscape
             'default_font' => 'dejavusans', // Supports Arabic and English
-            'margin_left' => 16,
-            'margin_right' => 16,
-            'margin_top' => 16,
-            'margin_bottom' => 16,
+            'margin_left' => 15,
+            'margin_right' => 15,
+            'margin_top' => 10,
+            'margin_bottom' => 10,
             'margin_header' => 9,
             'margin_footer' => 9,
             'autoScriptToLang' => true,
@@ -111,6 +111,12 @@ class ReportPdfService
 
         // Set LTR direction for the entire document
         $mpdf->SetDirectionality('ltr');
+
+        $mpdf->SetHTMLFooter('
+            <div style="text-align: center; font-family: Inter, sans-serif; font-size: 10px; color: #6b7280; padding: 10px 0; border-top: 1px solid #e5e7eb;">
+                Page {PAGENO} of {nbpg} | Generated on ' . now()->format('d-m-Y H:i:s') . ' | Apex
+            </div>
+        ');
 
         // Load the view and convert to HTML
         $html = view('filament.pdf.comprehensive-report', $data)->render();
