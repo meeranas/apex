@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 
 <head>
     <meta charset="UTF-8">
@@ -17,7 +17,7 @@
         body {
             font-family: 'Amiri', 'Inter', 'DejaVu Sans', Arial, sans-serif;
             margin: 0;
-            direction: rtl;
+            direction: ltr;
             background-color: #f8fafc;
             line-height: 1.5;
             color: #1a202c;
@@ -55,7 +55,6 @@
             justify-content: space-between;
             align-items: center;
             direction: ltr;
-            /* This is the key change to make the header behave as LTR */
         }
 
         .report-title {
@@ -63,14 +62,14 @@
             font-weight: 700;
             color: #1f2937;
             margin: 0;
-            display: inline-block;
+            text-align: left;
         }
 
         .report-date {
             color: #6b7280;
             font-size: 14px;
             font-weight: 500;
-            display: inline-block;
+            text-align: right;
         }
 
         /* Content Section */
@@ -78,36 +77,43 @@
             padding: 30px;
         }
 
-        /* Summary Cards Section */
         .summary-section {
             margin-bottom: 30px;
         }
 
-        .summary-table {
+        .summary-cards-row {
             width: 100%;
-            border-collapse: separate;
-            border-spacing: 15px 0;
-            table-layout: fixed;
-        }
-
-        .summary-card-cell {
-            padding: 0;
+            display: block;
+            position: relative;
         }
 
         .summary-card {
-            background: #f8fafc;
+            width: 21.5%;
+            background: #ffffff;
             border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            /* border-radius: 8px; */
             padding: 20px 15px;
             text-align: center;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */
+            min-height: 120px;
+            float: left;
+            position: relative;
+        }
+
+        .summary-card:last-child {
+            margin-right: 0;
         }
 
         .summary-value {
             font-size: 24px;
             font-weight: 700;
             color: #1f2937;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .summary-value.negative {
+            color: #dc2626;
         }
 
         .summary-label {
@@ -116,6 +122,8 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            margin-bottom: 3px;
+            line-height: 1.3;
         }
 
         .summary-label .arabic {
@@ -126,6 +134,13 @@
             font-size: 11px;
             text-transform: none;
             letter-spacing: normal;
+            line-height: 1.2;
+        }
+
+        .clearfix::after {
+            content: "";
+            display: table;
+            clear: both;
         }
 
         /* Table Section */
@@ -136,7 +151,7 @@
         .table-container {
             background: white;
             border: 1px solid #e5e7eb;
-            border-radius: 8px;
+            /* border-radius: 8px; */
             overflow: hidden;
         }
 
@@ -144,9 +159,9 @@
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
+            direction: ltr;
         }
 
-        /* Make table header repeat on every page */
         thead {
             display: table-header-group;
         }
@@ -238,19 +253,6 @@
             font-size: 12px;
         }
 
-        .footer .system-name {
-            font-weight: 700;
-            color: #374151;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .footer .arabic {
-            font-family: 'Amiri', serif;
-            color: #9ca3af;
-            margin-bottom: 8px;
-        }
-
         .footer .tagline {
             font-size: 10px;
             color: #9ca3af;
@@ -263,75 +265,65 @@
 <body>
     <div class="report-container">
         <div class="header">
-            <table style="width: 100%;">
+            <table style="width: 100%; direction: ltr;">
                 <tr>
-                    <!-- Bilingual Title -->
-                    <td style="text-align: left; font-size: 24px; font-weight: 700; color: #1f2937;">
+                    <td
+                        style="text-align: left; font-size: 24px; font-weight: 700; color: #1f2937; border-bottom: none;">
                         <span class="english-text" dir="ltr">Report</span> /
                         <span class="arabic-text" dir="rtl">تقرير</span>
                     </td>
-
-                    <!-- Date always LTR -->
-                    <td style="text-align: right; color: #6b7280; font-size: 14px; font-weight: 500;" dir="ltr">
-                        2025-09-21 10:30 AM
+                    <td style="text-align: right; color: #6b7280; font-size: 14px; font-weight: 500; border-bottom: none;"
+                        dir="ltr">
+                        {{ $generated_at ?? now()->format('d-m-Y') }}
                     </td>
                 </tr>
             </table>
         </div>
         <div class="content">
             <div class="summary-section">
-                <table class="summary-table">
-                    <tr>
-                        <td class="summary-card-cell">
-                            <div class="summary-card">
-                                <div class="summary-value">{{ number_format($statistics['overall_balance'], 2) }}</div>
-                                <div class="summary-label english-text">Overall Balance</div>
-                                <div class="summary-label arabic arabic-text">الرصيد الإجمالي</div>
-                            </div>
-                        </td>
-                        <td class="summary-card-cell">
-                            <div class="summary-card">
-                                <div class="summary-value">{{ number_format($statistics['total_invoices'], 2) }}</div>
-                                <div class="summary-label english-text">Total Invoices</div>
-                                <div class="summary-label arabic arabic-text">إجمالي الفواتير</div>
-                            </div>
-                        </td>
-                        <td class="summary-card-cell">
-                            <div class="summary-card">
-                                <div class="summary-value">{{ number_format($statistics['remaining_balance'], 2) }}
-                                </div>
-                                <div class="summary-label english-text">Remaining Balance</div>
-                                <div class="summary-label arabic arabic-text">الرصيد المتبقي</div>
-                            </div>
-                        </td>
-                        <td class="summary-card-cell">
-                            <div class="summary-card">
-                                <div class="summary-value">{{ number_format($statistics['percentage_remaining'], 2) }}%
-                                </div>
-                                <div class="summary-label english-text">Percentage Remaining</div>
-                                <div class="summary-label arabic arabic-text">النسبة المتبقية</div>
-                            </div>
-                        </td>
-                    </tr>
-                </table>
+                <div class="summary-cards-row clearfix">
+                    <div class="summary-card">
+                        <div class="summary-value">{{ number_format($statistics['overall_balance'], 2) }}
+                        </div>
+                        <div class="summary-label english-text">Overall Balance</div>
+                        <div class="summary-label arabic arabic-text">الرصيد الإجمالي</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">{{ number_format($statistics['total_invoices'], 2) }}</div>
+                        <div class="summary-label english-text">Total Invoices</div>
+                        <div class="summary-label arabic arabic-text">إجمالي الفواتير</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">{{ number_format($statistics['remaining_balance'], 2) }}
+                        </div>
+                        <div class="summary-label english-text">Remaining Balance</div>
+                        <div class="summary-label arabic arabic-text">الرصيد المتبقي</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">{{ number_format($statistics['percentage_remaining'], 2) }}%
+                        </div>
+                        <div class="summary-label english-text">Percentage Remaining</div>
+                        <div class="summary-label arabic arabic-text">النسبة المتبقية</div>
+                    </div>
+                </div>
             </div>
             <div class="table-section">
                 <div class="table-container">
-                    @if($customers->count() > 0)
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th class="english-text">Customer Name</th>
-                                    <th class="english-text">City</th>
-                                    <th class="english-text">Old Balance</th>
-                                    <th class="english-text">Total Invoices</th>
-                                    <th class="english-text">Remaining Balance</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="english-text">Customer Name</th>
+                                <th class="english-text">City</th>
+                                <th class="english-text">Old Balance</th>
+                                <th class="english-text">Total Invoices</th>
+                                <th class="english-text">Remaining Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if(isset($customers) && count($customers) > 0)
                                 @foreach($customers as $customer)
                                     <tr>
-                                        <td class="customer-name english-text">{{ $customer['name'] }}</td>
+                                        <td class="customer-name english-text"><b>{{ $customer['name'] }}</td>
                                         <td class="city-name english-text">{{ $customer['city'] }}</td>
                                         <td class="amount">{{ number_format($customer['old_balance'], 2) }} ر.س</td>
                                         <td class="amount">{{ number_format($customer['total_invoices'], 2) }} ر.س</td>
@@ -340,19 +332,18 @@
                                         </td>
                                     </tr>
                                 @endforeach
-                            </tbody>
-                        </table>
-                    @else
-                        <div class="no-data">
-                            <p class="english-text">No customers found matching the applied filters.</p>
-                            <p class="arabic-text">لم يتم العثور على عملاء يطابقون الفلاتر المطبقة.</p>
-                        </div>
-                    @endif
+                            @else
+                                <tr>
+                                    <td colspan="5" class="no-data">No data available</td>
+                                </tr>
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
         <div class="footer">
-            <div class="tagline english-text">Generated on {{ $generated_at }} | Apex </div>
+            <div class="tagline english-text">Generated on {{ $generated_at ?? now()->format('d-m-Y') }} | Apex</div>
         </div>
     </div>
 </body>

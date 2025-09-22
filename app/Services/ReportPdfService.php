@@ -9,7 +9,7 @@ use App\Models\City;
 use App\Models\Issuer;
 use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Mpdf\Mpdf; // Replace DomPDF with mPDF
 use Carbon\Carbon;
 
 class ReportPdfService
@@ -94,34 +94,32 @@ class ReportPdfService
             'generated_at' => now()->format('Y-m-d H:i:s'),
         ];
 
-        // Configure PDF with Amiri font support
-        $pdf = Pdf::loadView('filament.pdf.comprehensive-report', $data);
-        $pdf->setPaper('A4', 'landscape');
-
-        // Set DOMPDF options to use the correct font directory
-        $pdf->setOptions([
-            'isHtml5ParserEnabled' => true,
-            'isRemoteEnabled' => true,
-            'defaultFont' => 'Amiri',
-            'isPhpEnabled' => false,
-            'isJavascriptEnabled' => false,
-            'debugKeepTemp' => false,
-            'debugCss' => false,
-            'debugLayout' => false,
-            'debugLayoutLines' => false,
-            'debugLayoutBlocks' => false,
-            'debugLayoutInline' => false,
-            'debugLayoutPaddingBox' => false,
-            'defaultMediaType' => 'print',
-            'isFontSubsettingEnabled' => true,
-            'isUnicode' => true,
-            'defaultPaperSize' => 'a4',
-            'defaultPaperOrientation' => 'landscape',
-            'fontDir' => base_path('vendor/dompdf/dompdf/lib/fonts/'),
-            'fontCache' => base_path('vendor/dompdf/dompdf/lib/fonts/'),
+        // Configure mPDF with LTR support
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4-L', // Landscape
+            'default_font' => 'dejavusans', // Supports Arabic and English
+            'margin_left' => 15,
+            'margin_right' => 15,
+            'margin_top' => 16,
+            'margin_bottom' => 16,
+            'margin_header' => 9,
+            'margin_footer' => 9,
+            'autoScriptToLang' => true,
+            'autoLangToFont' => true,
         ]);
 
-        return $pdf->download('comprehensive-report-' . now()->format('Y-m-d-H-i-s') . '.pdf');
+        // Set LTR direction for the entire document
+        $mpdf->SetDirectionality('ltr');
+
+        // Load the view and convert to HTML
+        $html = view('filament.pdf.comprehensive-report', $data)->render();
+
+        // Write HTML to PDF
+        $mpdf->WriteHTML($html);
+
+        // Return the PDF
+        return $mpdf->Output('comprehensive-report-' . now()->format('Y-m-d-H-i-s') . '.pdf', 'D');
     }
 
     private function ensureUtf8($string)
