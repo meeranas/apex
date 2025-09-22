@@ -99,12 +99,12 @@ class ReportPdfService
             'mode' => 'utf-8',
             'format' => 'A4-L', // Landscape
             'default_font' => 'dejavusans', // Supports Arabic and English
-            'margin_left' => 15,
-            'margin_right' => 15,
+            'margin_left' => 10,
+            'margin_right' => 10,
             'margin_top' => 10,
             'margin_bottom' => 10,
-            'margin_header' => 9,
-            'margin_footer' => 9,
+            'margin_header' => 10,
+            'margin_footer' => 10,
             'autoScriptToLang' => true,
             'autoLangToFont' => true,
         ]);
