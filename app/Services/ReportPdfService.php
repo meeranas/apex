@@ -94,24 +94,33 @@ class ReportPdfService
             'generated_at' => now()->format('Y-m-d H:i:s'),
         ];
 
-        // Configure mPDF with LTR support
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
             'format' => 'A4-L', // Landscape
             'default_font' => 'dejavusans', // Supports Arabic and English
-            'margin_left' => 10,
-            'margin_right' => 10,
-            'margin_top' => 10,
-            'margin_bottom' => 10,
-            'margin_header' => 10,
-            'margin_footer' => 10,
+            'margin_left' => 15,
+            'margin_right' => 15,
+            'margin_top' => 20,
+            'margin_bottom' => 20,
+            'margin_header' => 5,
+            'margin_footer' => 5,
             'autoScriptToLang' => true,
             'autoLangToFont' => true,
+            'use_kwt' => true, // Keep with table
+            'shrink_tables_to_fit' => 1,
+            'simpleTables' => false,
+            'packTableData' => true,
+            'restoreBlockPagebreaks' => true,
+            'useSubstitutions' => false,
+            'showImageErrors' => true,
         ]);
 
         // Set LTR direction for the entire document
         $mpdf->SetDirectionality('ltr');
+        // Remove the HTML footer since we'll handle it in the template
+        // $mpdf->SetHTMLFooter('...');
 
+        // Set HTML footer for all pages
         $mpdf->SetHTMLFooter('
             <div style="text-align: center; font-family: Inter, sans-serif; font-size: 10px; color: #6b7280; padding: 10px 0; border-top: 1px solid #e5e7eb;">
                 Page {PAGENO} of {nbpg} | Generated on ' . now()->format('d-m-Y H:i:s') . ' | Apex
@@ -123,6 +132,9 @@ class ReportPdfService
 
         // Write HTML to PDF
         $mpdf->WriteHTML($html);
+
+        // Write HTML to PDF with proper page break handling
+        // $mpdf->WriteHTML($html, 2); // 2 = HTML mode with page breaks
 
         // Return the PDF
         return $mpdf->Output('comprehensive-report-' . now()->format('Y-m-d-H-i-s') . '.pdf', 'D');
