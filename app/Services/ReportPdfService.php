@@ -62,11 +62,22 @@ class ReportPdfService
 
         $customers = $customerQuery->get();
 
-        // Calculate overall statistics
-        $overallBalance = $customers->sum('current_balance');
-        $totalInvoices = $customers->sum('overall_invoices');
-        $remainingBalance = $overallBalance;
-        $percentageRemaining = $totalInvoices > 0 ? ($remainingBalance / $totalInvoices) * 100 : 0;
+        // Calculate new overall statistics according to requirements
+        // Overall Credit = sum of (Overall Invoices + Old Balances)
+        $overallCredit = $customers->sum(function ($customer) {
+            return $customer->overall_invoices + $customer->old_balance;
+        });
+
+        // Remaining Balance = sum of current balances
+        $remainingBalance = $customers->sum('current_balance');
+
+        // Total payments, discounts, and returned goods
+        $totalPayments = $customers->sum('overall_payments');
+        $totalDiscounts = $customers->sum('overall_discount');
+        $totalReturnedGoods = $customers->sum('overall_returned_goods');
+
+        // Calculate percentage: (Debit + Discount + Return Goods) / Overall Credit * 100
+        $percentageRemaining = $overallCredit > 0 ? (($totalPayments + $totalDiscounts + $totalReturnedGoods) / $overallCredit) * 100 : 0;
 
         // Prepare customer data with proper encoding
         $customerData = $customers->map(function ($customer) {
@@ -85,8 +96,7 @@ class ReportPdfService
         $data = [
             'customers' => $customerData,
             'statistics' => [
-                'overall_balance' => (float) $overallBalance,
-                'total_invoices' => (float) $totalInvoices,
+                'overall_credit' => (float) $overallCredit,
                 'remaining_balance' => (float) $remainingBalance,
                 'percentage_remaining' => (float) $percentageRemaining,
             ],

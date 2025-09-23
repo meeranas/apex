@@ -88,16 +88,15 @@
         }
 
         .summary-card {
-            width: 21.5%;
+            width: 46.5%;
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            /* border-radius: 8px; */
             padding: 20px 15px;
             text-align: center;
-            /* box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); */
             min-height: 120px;
             float: left;
             position: relative;
+            margin-right: 3%;
         }
 
         .summary-card:last-child {
@@ -283,27 +282,14 @@
             <div class="summary-section">
                 <div class="summary-cards-row clearfix">
                     <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['overall_balance'], 2) }}
-                        </div>
-                        <div class="summary-label english-text">Overall Balance</div>
-                        <div class="summary-label arabic arabic-text">الرصيد الإجمالي</div>
+                        <div class="summary-value">{{ number_format($statistics['overall_credit'], 2) }}</div>
+                        <div class="summary-label english-text">Overall Credit</div>
+                        <div class="summary-label arabic arabic-text">إجمالي الائتمان</div>
                     </div>
                     <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['total_invoices'], 2) }}</div>
-                        <div class="summary-label english-text">Total Invoices</div>
-                        <div class="summary-label arabic arabic-text">إجمالي الفواتير</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['remaining_balance'], 2) }}
-                        </div>
+                        <div class="summary-value">{{ number_format($statistics['remaining_balance'], 2) }}</div>
                         <div class="summary-label english-text">Remaining Balance</div>
                         <div class="summary-label arabic arabic-text">الرصيد المتبقي</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['percentage_remaining'], 2) }}%
-                        </div>
-                        <div class="summary-label english-text">Percentage Remaining</div>
-                        <div class="summary-label arabic arabic-text">النسبة المتبقية</div>
                     </div>
                 </div>
             </div>
