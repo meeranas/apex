@@ -96,7 +96,7 @@ class ComprehensiveDashboardWidget extends BaseWidget
 
         $remainingBalance = $filteredCustomers->sum('current_balance');
         $customersWithRemainingBalance = $filteredCustomers->where('current_balance', '>', 0)->count();
-        $activeCustomers = $filteredCustomers->where('current_balance', '>', 0)->count();
+        $activeCustomers = $filteredCustomers->where('current_balance', '<', 0)->count();
 
         // Calculate payment percentage
         $paymentPercentage = $totalDueAmounts > 0 ? (($totalPayments + $totalDiscounts + $totalReturnedGoods) / $totalDueAmounts) * 100 : 0;
