@@ -332,7 +332,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if(isset($customers) && count($customers) > 0)
+                            @if(isset($customers))
                                 @foreach($customers as $customer)
                                     <tr>
                                         <td class="customer-name english-text"><b>{{ $customer['name'] }}</b></td>
