@@ -313,22 +313,21 @@
                     <table>
                         <thead>
                             <tr>
-                                <th class="english-text">Customer Name<br><span class="arabic-text"
-                                        style="">أسم العميل</span></th>
-                                <th class="english-text">City<br><span class="arabic-text"
-                                        style="">المدينة</span></th>
-                                <th class="english-text">Old Balance<br><span class="arabic-text"
-                                        style="">الرصيد السابق</span></th>
-                                <th class="english-text">Total Invoices<br><span class="arabic-text"
-                                        style="">اجمالي الفواتير</span></th>
+                                <th class="english-text">Customer Name<br><span class="arabic-text" style="">أسم
+                                        العميل</span></th>
+                                <th class="english-text">City<br><span class="arabic-text" style="">المدينة</span></th>
+                                <th class="english-text">Old Balance<br><span class="arabic-text" style="">الرصيد
+                                        السابق</span></th>
+                                <th class="english-text">Total Invoices<br><span class="arabic-text" style="">اجمالي
+                                        الفواتير</span></th>
                                 <th class="english-text">Overall Debit<br><span class="arabic-text"
                                         style="">التحصيل</span></th>
                                 <th class="english-text">Total Discount<br><span class="arabic-text"
                                         style="">الخصم</span></th>
                                 <th class="english-text">Overall Return Goods<br><span class="arabic-text"
                                         style="">المراجع</span></th>
-                                <th class="english-text">Remaining Balance<br><span class="arabic-text"
-                                        style="">الرصيد الحالي</span></th>
+                                <th class="english-text">Remaining Balance<br><span class="arabic-text" style="">الرصيد
+                                        الحالي</span></th>
                                 <th class="english-text">% of Payments</th>
                             </tr>
                         </thead>

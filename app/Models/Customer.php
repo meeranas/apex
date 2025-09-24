@@ -87,7 +87,7 @@ class Customer extends Model
             ->with('items')
             ->get()
             ->sum(function ($invoice) {
-                return $invoice->items->sum('total');
+                return $invoice->items ? $invoice->items->sum('total') : 0;
             }) ?? 0;
     }
 
