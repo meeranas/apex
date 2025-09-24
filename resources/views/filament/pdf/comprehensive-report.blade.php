@@ -88,7 +88,7 @@
         }
 
         .summary-card {
-            width: 46.5%;
+            width: 16.5%;
             background: #ffffff;
             border: 1px solid #e2e8f0;
             padding: 20px 15px;
@@ -282,14 +282,29 @@
             <div class="summary-section">
                 <div class="summary-cards-row clearfix">
                     <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['overall_credit'], 2) }}</div>
-                        <div class="summary-label english-text">Overall Credit</div>
-                        <div class="summary-label arabic arabic-text">إجمالي الائتمان</div>
+                        <div class="summary-value">{{ number_format($statistics['remaining_balance'], 2) }}</div>
+                        <div class="summary-label english-text">Overall Balance</div>
+                        <div class="summary-label arabic arabic-text">الرصيد الإجمالي</div>
                     </div>
                     <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['remaining_balance'], 2) }}</div>
-                        <div class="summary-label english-text">Remaining Balance</div>
-                        <div class="summary-label arabic arabic-text">الرصيد المتبقي</div>
+                        <div class="summary-value">{{ number_format($statistics['overall_debit'], 2) }}</div>
+                        <div class="summary-label english-text">Overall Debit</div>
+                        <div class="summary-label arabic arabic-text">أجمالي التحصيل</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">{{ number_format($statistics['overall_discount'], 2) }}</div>
+                        <div class="summary-label english-text">Overall Discount</div>
+                        <div class="summary-label arabic arabic-text">أجمالي الخصم</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">{{ number_format($statistics['overall_return'], 2) }}</div>
+                        <div class="summary-label english-text">Overall Return</div>
+                        <div class="summary-label arabic arabic-text">أجمالي المرتجع</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">{{ number_format($statistics['payment_percentage'], 2) }}%</div>
+                        <div class="summary-label english-text">% of Payments</div>
+                        <div class="summary-label arabic arabic-text">نسبة الدفع</div>
                     </div>
                 </div>
             </div>
@@ -302,25 +317,35 @@
                                 <th class="english-text">City</th>
                                 <th class="english-text">Old Balance</th>
                                 <th class="english-text">Total Invoices</th>
+                                <th class="english-text">Overall Debit</th>
+                                <th class="english-text">Total Discount</th>
+                                <th class="english-text">Overall Return Goods</th>
                                 <th class="english-text">Remaining Balance</th>
+                                <th class="english-text">% of Payments</th>
                             </tr>
                         </thead>
                         <tbody>
                             @if(isset($customers) && count($customers) > 0)
                                 @foreach($customers as $customer)
                                     <tr>
-                                        <td class="customer-name english-text"><b>{{ $customer['name'] }}</td>
+                                        <td class="customer-name english-text"><b>{{ $customer['name'] }}</b></td>
                                         <td class="city-name english-text">{{ $customer['city'] }}</td>
-                                        <td class="amount">{{ number_format($customer['old_balance'], 2) }} ر.س</td>
-                                        <td class="amount">{{ number_format($customer['total_invoices'], 2) }} ر.س</td>
-                                        <td class="amount {{ $customer['remaining_balance'] >= 0 ? 'positive' : 'negative' }}">
-                                            {{ number_format($customer['remaining_balance'], 2) }} ر.س
+                                        <td class="amount english-text">{{ number_format($customer['old_balance'], 2) }}</td>
+                                        <td class="amount english-text">{{ number_format($customer['total_invoices'], 2) }}</td>
+                                        <td class="amount english-text">{{ number_format($customer['overall_debit'], 2) }}</td>
+                                        <td class="amount english-text">{{ number_format($customer['total_discount'], 2) }}</td>
+                                        <td class="amount english-text">{{ number_format($customer['overall_return'], 2) }}</td>
+                                        <td
+                                            class="amount english-text {{ $customer['remaining_balance'] >= 0 ? 'positive' : 'negative' }}">
+                                            {{ number_format($customer['remaining_balance'], 2) }}
+                                        </td>
+                                        <td class="amount english-text">{{ number_format($customer['payment_percentage'], 2) }}%
                                         </td>
                                     </tr>
                                 @endforeach
                             @else
                                 <tr>
-                                    <td colspan="5" class="no-data">No data available</td>
+                                    <td colspan="9" class="no-data">No data available</td>
                                 </tr>
                             @endif
                         </tbody>

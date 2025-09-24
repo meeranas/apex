@@ -86,7 +86,11 @@ class ReportPdfService
                 'city' => $this->ensureUtf8($customer->city->name ?? 'N/A'),
                 'old_balance' => (float) $customer->old_balance,
                 'total_invoices' => (float) $customer->overall_invoices,
+                'overall_debit' => (float) $customer->overall_payments,
+                'total_discount' => (float) $customer->overall_discount,
+                'overall_return' => (float) $customer->overall_returned_goods,
                 'remaining_balance' => (float) $customer->current_balance,
+                'payment_percentage' => (float) $customer->calculated_payment_percentage,
             ];
         });
 
@@ -97,8 +101,11 @@ class ReportPdfService
             'customers' => $customerData,
             'statistics' => [
                 'overall_credit' => (float) $overallCredit,
+                'overall_debit' => (float) $totalPayments,
+                'overall_discount' => (float) $totalDiscounts,
+                'overall_return' => (float) $totalReturnedGoods,
                 'remaining_balance' => (float) $remainingBalance,
-                'percentage_remaining' => (float) $percentageRemaining,
+                'payment_percentage' => (float) $percentageRemaining,
             ],
             'filters' => $filterOptions,
             'generated_at' => now()->format('Y-m-d H:i:s'),
@@ -108,10 +115,10 @@ class ReportPdfService
             'mode' => 'utf-8',
             'format' => 'A4-L', // Landscape
             'default_font' => 'dejavusans', // Supports Arabic and English
-            'margin_left' => 15,
-            'margin_right' => 15,
-            'margin_top' => 20,
-            'margin_bottom' => 20,
+            'margin_left' => 5,
+            'margin_right' => 5,
+            'margin_top' => 5,
+            'margin_bottom' => 5,
             'margin_header' => 5,
             'margin_footer' => 5,
             'autoScriptToLang' => true,
