@@ -88,7 +88,7 @@
         }
 
         .summary-card {
-            width: 16.5%;
+            width: 10%;
             background: #ffffff;
             border: 1px solid #e2e8f0;
             padding: 20px 15px;
