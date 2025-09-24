@@ -113,7 +113,7 @@ class ReportPdfService
 
         $mpdf = new Mpdf([
             'mode' => 'utf-8',
-            'format' => 'A4-L', // Landscape
+            'format' => 'A4', // Landscape
             'default_font' => 'dejavusans', // Supports Arabic and English
             'margin_left' => 5,
             'margin_right' => 5,

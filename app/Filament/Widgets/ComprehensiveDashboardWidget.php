@@ -11,6 +11,7 @@ use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\HtmlString;
+use Carbon\Carbon;
 
 class ComprehensiveDashboardWidget extends BaseWidget
 {
@@ -104,6 +105,16 @@ class ComprehensiveDashboardWidget extends BaseWidget
         // Calculate overdue balances (customers with positive current balance)
         $overdueBalances = $filteredCustomers->where('current_balance', '>', 0)->sum('current_balance');
 
+        // Calculate sum of invoices whose due date is today or before
+        $today = Carbon::today();
+        $overdueInvoicesTotal = $invoiceQuery
+            ->where('due_date', '<=', $today)
+            ->with('items')
+            ->get()
+            ->sum(function ($invoice) {
+                return $invoice->items->sum('total');
+            });
+
         return [
             // 1. Overall Balances (أجمالي الأرصدة)
             Stat::make('', number_format($remainingBalance, 2))
@@ -147,9 +158,9 @@ class ComprehensiveDashboardWidget extends BaseWidget
                 ]),
 
             // 6. Due Balances (أجمالي الأرصدة المتاخرة)
-            Stat::make('', number_format($overdueBalances, 2))
+            Stat::make('', number_format($overdueInvoicesTotal, 2))
                 ->description(new HtmlString("Due Balances<br>أجمالي الأرصدة المتاخرة"))
-                ->color($overdueBalances > 0 ? 'danger' : 'success')
+                ->color($overdueInvoicesTotal > 0 ? 'danger' : 'success')
                 ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 7. # of Active Customers (عدد العملاء النشيطين)
