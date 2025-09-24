@@ -107,7 +107,7 @@ class ComprehensiveDashboardWidget extends BaseWidget
         return [
             // 1. Overall Balances (أجمالي الأرصدة)
             Stat::make('', number_format($remainingBalance, 2))
-                ->description(new HtmlString("Overall Balances<br>أجمالي الأرصدة"))
+                ->description(new HtmlString("Remaining Balance<br>الأرصدة المتبقية"))
                 ->color(
                     $remainingBalance < 0
                     ? 'danger'
