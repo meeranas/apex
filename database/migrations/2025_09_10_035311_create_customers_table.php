@@ -11,7 +11,6 @@ return new class extends Migration {
             $table->id();
             $table->string('customer_name');
             $table->string('account_number')->unique();
-            $table->string('city');
             $table->string('representative_name');
             $table->string('mobile_number');
             $table->text('address');
