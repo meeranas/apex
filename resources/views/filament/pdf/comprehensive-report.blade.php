@@ -46,13 +46,13 @@
         /* Header Section */
         .header {
             background: #ffffff;
-            padding: 5px;
+            padding: 8px;
             border-bottom: 2px solid #f3f4f6;
         }
 
         /* Content Section */
         .content {
-            padding: 15px;
+            padding: 20px;
         }
 
         /* Summary Tables Section */
