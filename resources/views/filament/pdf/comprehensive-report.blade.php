@@ -123,30 +123,34 @@
             display: block;
             font-weight: bold;
             color: #374151;
-            margin-bottom: 4px;
-            line-height: 1.2;
+            margin-bottom: 6px;
+            line-height: 1.3;
+            white-space: nowrap;
         }
 
         .summary-table .label-cell .arabic-label {
             display: block;
             color: #374151;
             font-size: 13px;
-            line-height: 1.2;
+            line-height: 1.3;
+            white-space: nowrap;
         }
 
         .summary-table .label-cell-white .english-label {
             display: block;
             font-weight: bold;
             color: #374151;
-            margin-bottom: 4px;
-            line-height: 1.2;
+            margin-bottom: 6px;
+            line-height: 1.3;
+            white-space: nowrap;
         }
 
         .summary-table .label-cell-white .arabic-label {
             display: block;
             color: #374151;
             font-size: 13px;
-            line-height: 1.2;
+            line-height: 1.3;
+            white-space: nowrap;
         }
 
         .summary-table .value-cell.red-value {
