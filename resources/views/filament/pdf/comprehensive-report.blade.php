@@ -46,94 +46,115 @@
         /* Header Section */
         .header {
             background: #ffffff;
-            padding: 30px;
+            padding: 5px;
             border-bottom: 2px solid #f3f4f6;
-        }
-
-        .header-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            direction: ltr;
-        }
-
-        .report-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1f2937;
-            margin: 0;
-            text-align: left;
-        }
-
-        .report-date {
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 500;
-            text-align: right;
         }
 
         /* Content Section */
         .content {
-            padding: 30px;
+            padding: 15px;
         }
 
+        /* Summary Tables Section */
         .summary-section {
             margin-bottom: 30px;
         }
 
-        .summary-cards-row {
+        .summary-tables-container {
             width: 100%;
-            display: block;
-            position: relative;
+            overflow: hidden;
         }
 
-        .summary-card {
-            width: 15%;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            padding: 20px 15px;
-            text-align: center;
-            min-height: 120px;
+        .summary-table-wrapper {
             float: left;
-            position: relative;
-            margin-right: 3%;
+            width: 44%;
+            margin-right: 12%;
         }
 
-        .summary-card:last-child {
+        .summary-table-wrapper:last-child {
             margin-right: 0;
         }
 
-        .summary-value {
-            font-size: 24px;
-            font-weight: 700;
-            color: #1f2937;
-            margin-bottom: 8px;
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #d1d5db;
+            background: #f9fafb;
+        }
+
+        .summary-table td {
+            padding: 12px 15px;
+            border: 1px solid #ffffff;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .summary-table .label-cell {
+            background: #e5e7eb;
+            text-align: left;
+            vertical-align: middle;
+            width: 60%;
+        }
+
+        .summary-table .label-cell-white {
+            background: #ffffff;
+            text-align: left;
+            vertical-align: middle;
+            width: 60%;
+        }
+
+        .summary-table .value-cell {
+            background: #e5e7eb;
+            text-align: center;
+            vertical-align: middle;
+            width: 40%;
+            font-weight: bold;
+        }
+
+        .summary-table .value-cell-white {
+            background: #ffffff;
+            text-align: center;
+            vertical-align: middle;
+            width: 40%;
+            font-weight: bold;
+        }
+
+        .summary-table .label-cell .english-label {
+            display: block;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 4px;
             line-height: 1.2;
         }
 
-        .summary-value.negative {
+        .summary-table .label-cell .arabic-label {
+            display: block;
+            color: #374151;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+
+        .summary-table .label-cell-white .english-label {
+            display: block;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 4px;
+            line-height: 1.2;
+        }
+
+        .summary-table .label-cell-white .arabic-label {
+            display: block;
+            color: #374151;
+            font-size: 13px;
+            line-height: 1.2;
+        }
+
+        .summary-table .value-cell.red-value {
             color: #dc2626;
         }
 
-        .summary-label {
-            font-size: 12px;
-            color: #6b7280;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 3px;
-            line-height: 1.3;
-        }
-
-        .summary-label .arabic {
-            font-family: 'Amiri', serif;
-            display: block;
-            margin-top: 3px;
-            color: #9ca3af;
-            font-size: 11px;
-            text-transform: none;
-            letter-spacing: normal;
-            line-height: 1.2;
+        .summary-table .value-cell.gray-value {
+            color: #374151;
         }
 
         .clearfix::after {
@@ -150,7 +171,6 @@
         .table-container {
             background: white;
             border: 1px solid #e5e7eb;
-            /* border-radius: 8px; */
             overflow: hidden;
         }
 
@@ -174,7 +194,7 @@
             letter-spacing: 0.5px;
             padding: 12px 15px;
             text-align: left;
-            border-bottom: 2px solid #3b82f6;
+            border-bottom: 2px solid #d97706;
             border-right: 1px solid #e5e7eb;
         }
 
@@ -280,31 +300,71 @@
         </div>
         <div class="content">
             <div class="summary-section">
-                <div class="summary-cards-row clearfix">
-                    <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['remaining_balance'], 2) }}</div>
-                        <div class="summary-label english-text">Overall Balance</div>
-                        <div class="summary-label arabic arabic-text">الرصيد الإجمالي</div>
+                <div class="summary-tables-container">
+                    <!-- Left Table -->
+                    <div class="summary-table-wrapper" style="width: 44%; margin-right: 10%;">
+                        <table class="summary-table" style="border: 1px solid #d1d5db;">
+                            <tr>
+                                <td class="label-cell" style="border: 1px solid #d1d5db;">
+                                    <span class="english-label">Current Balances</span>
+                                    <span class="arabic-label arabic-text">أجمالي الأرصدة</span>
+                                </td>
+                                <td class="value-cell red-value" style="border: 1px solid #d1d5db;">
+                                    {{ number_format($statistics['overall_balance'], 0) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="border: 1px solid #d1d5db;">
+                                    <span class="english-label">Remaining Balance</span>
+                                    <span class="arabic-label arabic-text">الأرصدة المتبقية</span>
+                                </td>
+                                <td class="value-cell red-value" style="border: 1px solid #d1d5db;">
+                                    {{ number_format($statistics['remaining_balance'], 0) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell" style="border: 1px solid #d1d5db;">
+                                    <span class="english-label">% of Payments</span>
+                                    <span class="arabic-label arabic-text">نسبة المدفوع</span>
+                                </td>
+                                <td class="value-cell red-value" style="border: 1px solid #d1d5db;">
+                                    {{ number_format($statistics['payment_percentage'], 0) }}
+                                </td>
+                            </tr>
+                        </table>
                     </div>
-                    <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['overall_debit'], 2) }}</div>
-                        <div class="summary-label english-text">Overall Debit</div>
-                        <div class="summary-label arabic arabic-text">أجمالي التحصيل</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['overall_discount'], 2) }}</div>
-                        <div class="summary-label english-text">Overall Discount</div>
-                        <div class="summary-label arabic arabic-text">أجمالي الخصم</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['overall_return'], 2) }}</div>
-                        <div class="summary-label english-text">Overall Return</div>
-                        <div class="summary-label arabic arabic-text">أجمالي المرتجع</div>
-                    </div>
-                    <div class="summary-card">
-                        <div class="summary-value">{{ number_format($statistics['payment_percentage'], 2) }}%</div>
-                        <div class="summary-label english-text">% of Payments</div>
-                        <div class="summary-label arabic arabic-text">نسبة الدفع</div>
+
+                    <!-- Right Table -->
+                    <div class="summary-table-wrapper" style="width: 44%; margin-left: 11.8%;">
+                        <table class="summary-table" style="border: 1px solid #f3f4f6;">
+                            <tr>
+                                <td class="label-cell-white" style="border: 1px solid #f3f4f6;">
+                                    <span class="english-label">Overall Debit</span>
+                                    <span class="arabic-label arabic-text">أجمالي التحصيل</span>
+                                </td>
+                                <td class="value-cell-white gray-value" style="border: 1px solid #f3f4f6;">
+                                    {{ number_format($statistics['overall_debit'], 0) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell-white" style="border: 1px solid #f3f4f6;">
+                                    <span class="english-label">Overall Discount</span>
+                                    <span class="arabic-label arabic-text">أجمالي الخصم</span>
+                                </td>
+                                <td class="value-cell-white gray-value" style="border: 1px solid #f3f4f6;">
+                                    {{ number_format($statistics['overall_discount'], 0) }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="label-cell-white" style="border: 1px solid #f3f4f6;">
+                                    <span class="english-label">Overall Return</span>
+                                    <span class="arabic-label arabic-text">أجمالي المرتجع</span>
+                                </td>
+                                <td class="value-cell-white gray-value" style="border: 1px solid #f3f4f6;">
+                                    {{ number_format($statistics['overall_return'], 0) }}
+                                </td>
+                            </tr>
+                        </table>
                     </div>
                 </div>
             </div>

@@ -63,21 +63,21 @@ class ReportPdfService
         $customers = $customerQuery->get();
 
         // Calculate new overall statistics according to requirements
-        // Overall Credit = sum of (Overall Invoices + Old Balances)
-        $overallCredit = $customers->sum(function ($customer) {
+        // Overall Balance = (Overall Old Balances + Overall Invoices)
+        $overallBalance = $customers->sum(function ($customer) {
             return $customer->overall_invoices + $customer->old_balance;
         });
-
-        // Remaining Balance = sum of current balances
-        $remainingBalance = $customers->sum('current_balance');
 
         // Total payments, discounts, and returned goods
         $totalPayments = $customers->sum('overall_payments');
         $totalDiscounts = $customers->sum('overall_discount');
         $totalReturnedGoods = $customers->sum('overall_returned_goods');
 
-        // Calculate percentage: (Debit + Discount + Return Goods) / Overall Credit * 100
-        $percentageRemaining = $overallCredit > 0 ? (($totalPayments + $totalDiscounts + $totalReturnedGoods) / $overallCredit) * 100 : 0;
+        // Remaining Balance = (Debit + Discount + Return Goods) - (Overall Balance)
+        $remainingBalance = ($totalPayments + $totalDiscounts + $totalReturnedGoods) - $overallBalance;
+
+        // Calculate percentage: (Debit + Discount + Return Goods) / Overall Balance * 100
+        $percentageRemaining = $overallBalance > 0 ? (($totalPayments + $totalDiscounts + $totalReturnedGoods) / $overallBalance) * 100 : 0;
 
         // Prepare customer data with proper encoding
         $customerData = $customers->map(function ($customer) {
@@ -100,7 +100,7 @@ class ReportPdfService
         $data = [
             'customers' => $customerData,
             'statistics' => [
-                'overall_credit' => (float) $overallCredit,
+                'overall_balance' => (float) $overallBalance,
                 'overall_debit' => (float) $totalPayments,
                 'overall_discount' => (float) $totalDiscounts,
                 'overall_return' => (float) $totalReturnedGoods,

@@ -118,7 +118,7 @@ class ComprehensiveDashboardWidget extends BaseWidget
         return [
             // 1. Overall Balances (أجمالي الأرصدة)
             Stat::make('', number_format($remainingBalance, 2))
-                ->description(new HtmlString("Remaining Balance<br>الأرصدة المتبقية"))
+                ->description(new HtmlString("<strong>Remaining Balance<br>الأرصدة المتبقية</strong>"))
                 ->color(
                     $remainingBalance < 0
                     ? 'danger'
@@ -130,25 +130,25 @@ class ComprehensiveDashboardWidget extends BaseWidget
 
             // 2. Overall Debit (أجمالي التحصيل)
             Stat::make('', number_format($totalPayments, 2))
-                ->description(new HtmlString("Overall Debit<br>أجمالي التحصيل"))
+                ->description(new HtmlString("<strong>Overall Debit<br>أجمالي التحصيل</strong>"))
                 ->color('success')
                 ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 3. Overall Discount (أجمالي الخصم)
             Stat::make('', number_format($totalDiscounts, 2))
-                ->description(new HtmlString("Overall Discount<br>أجمالي الخصم"))
+                ->description(new HtmlString("<strong>Overall Discount<br>أجمالي الخصم</strong>"))
                 ->color('info')
                 ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 4. Overall Return (أجمالي المرتجع)
             Stat::make('', number_format($totalReturnedGoods, 2))
-                ->description(new HtmlString("Overall Return<br>أجمالي المرتجع"))
+                ->description(new HtmlString("<strong>Overall Return<br>أجمالي المرتجع</strong>"))
                 ->color('gray')
                 ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 5. % of Payments (نسبة المدفوع)
             Stat::make('', number_format($paymentPercentage, 2) . '%')
-                ->description(new HtmlString("% of Payments<br>نسبة المدفوع"))
+                ->description(new HtmlString("<strong>% of Payments<br>نسبة المدفوع</strong>"))
                 ->color(
                     $paymentPercentage >= 80 ? 'success'
                     : ($paymentPercentage >= 50 ? 'warning' : 'danger')
@@ -159,19 +159,19 @@ class ComprehensiveDashboardWidget extends BaseWidget
 
             // 6. Due Balances (أجمالي الأرصدة المتاخرة)
             Stat::make('', number_format($overdueInvoicesTotal, 2))
-                ->description(new HtmlString("Due Balances<br>أجمالي الأرصدة المتاخرة"))
+                ->description(new HtmlString("<strong>Due Balances<br>أجمالي الأرصدة المتاخرة</strong>"))
                 ->color($overdueInvoicesTotal > 0 ? 'danger' : 'success')
                 ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 7. # of Active Customers (عدد العملاء النشيطين)
             Stat::make('', $activeCustomers)
-                ->description(new HtmlString("# of Active Customers<br>عدد العملاء النشيطين"))
+                ->description(new HtmlString("<strong># of Active Customers<br>عدد العملاء النشيطين</strong>"))
                 ->color($activeCustomers > 0 ? 'warning' : 'success')
                 ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
 
             // 8. Overall Old Balance (أجمالي الأرصدة السابقة)
             Stat::make('', number_format($totalOldBalance, 2))
-                ->description(new HtmlString("Overall Old Balance<br>أجمالي الأرصدة السابقة"))
+                ->description(new HtmlString("<strong>Overall Old Balance<br>أجمالي الأرصدة السابقة</strong>"))
                 ->color('info')
                 ->extraAttributes(['class' => 'flex flex-col items-center text-center mb-3 [&_.fi-stats-overview-stat-value]:text-3xl [&_.fi-stats-overview-stat-value]:font-bold']),
         ];
