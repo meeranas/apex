@@ -19,7 +19,7 @@ return new class extends Migration {
             $table->string('payment_method')->nullable();
             $table->decimal('total_amount', 15, 2)->nullable();
             $table->text('remarks')->nullable();
-            $table->string('issuer_name');
+            $table->foreignId('issuer_id')->constrained('issuers')->onDelete('cascade');
             $table->timestamps();
         });
     }

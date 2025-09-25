@@ -68,7 +68,7 @@ class TransactionResource extends Resource
                         Forms\Components\TextInput::make('document_number')
                             ->label('Document Number / رقم السند')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(50),
 
                         Forms\Components\DatePicker::make('transaction_date')
                             ->label('Date / التاريخ')

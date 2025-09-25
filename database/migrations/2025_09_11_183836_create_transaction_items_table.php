@@ -14,11 +14,10 @@ return new class extends Migration
         Schema::create('transaction_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('transaction_id')->constrained()->onDelete('cascade');
-            $table->string('item_name');
-            $table->integer('item_number');
             $table->decimal('yards', 10, 2);
             $table->decimal('price_per_yard', 10, 2);
             $table->decimal('total', 15, 2);
+            $table->foreignId('product_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });
     }

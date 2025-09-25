@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('issuer_id')->constrained('issuers')->onDelete('cascade');
             $table->foreignId('can_view_id')->constrained('issuers')->onDelete('cascade');
             $table->timestamps();
-            
             $table->unique(['issuer_id', 'can_view_id']);
         });
     }

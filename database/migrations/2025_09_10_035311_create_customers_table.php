@@ -9,12 +9,14 @@ return new class extends Migration {
     {
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('issuer_id')->nullable()->constrained('issuers')->onDelete('cascade');
             $table->string('customer_name');
             $table->string('account_number')->unique();
             $table->string('representative_name');
             $table->string('mobile_number');
             $table->text('address');
             $table->text('remarks')->nullable();
+            $table->foreignId('city_id')->nullable()->constrained()->onDelete('set null');
             $table->decimal('old_balance', 15, 2)->default(0);
             $table->timestamps();
         });

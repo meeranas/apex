@@ -37,7 +37,7 @@ class InvoiceResource extends Resource
                         Forms\Components\TextInput::make('goods_delivery_document_number')
                             ->label('Delivery Doc # / رقم سند التسليم')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(50),
 
                         Forms\Components\DatePicker::make('invoice_date')
                             ->label('Date / التاريخ')

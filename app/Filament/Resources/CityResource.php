@@ -41,7 +41,7 @@ class CityResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
-                            ->maxLength(255)
+                            ->maxLength(50)
                             ->unique(City::class, 'name', ignoreRecord: true)
                             ->label('Name / الاسم'),
 

@@ -43,7 +43,7 @@ class ProductResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('name')
                             ->required()
-                            ->maxLength(255)
+                            ->maxLength(50)
                             ->unique(Product::class, 'name', ignoreRecord: true)
                             ->validationMessages([
                                 'unique' => 'The name has already been taken.',
@@ -52,7 +52,11 @@ class ProductResource extends Resource
 
                         Forms\Components\TextInput::make('number')
                             ->required()
-                            ->maxLength(255)
+                            ->maxLength(50)
+                            ->unique(Product::class, 'number', ignoreRecord: true)
+                            ->validationMessages([
+                                'unique' => 'The number has already been taken.',
+                            ])
                             ->label('Number / الرقم'),
                     ])->columns(2),
             ]);

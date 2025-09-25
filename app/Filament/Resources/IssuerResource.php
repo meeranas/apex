@@ -41,7 +41,7 @@ class IssuerResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('full_name')
                             ->required()
-                            ->maxLength(255)
+                            ->maxLength(50)
                             ->label('Full Name / الاسم الكامل'),
 
                         Forms\Components\DatePicker::make('id_expiration')
@@ -51,7 +51,7 @@ class IssuerResource extends Resource
                         Forms\Components\TextInput::make('password')
                             ->password()
                             ->required()
-                            ->maxLength(255)
+                            ->maxLength(50)
                             ->dehydrated(fn($state) => filled($state))
                             ->required(fn(string $context): bool => $context === 'create')
                             ->label('Password / الكلمة السرية'),
@@ -83,7 +83,7 @@ class IssuerResource extends Resource
 
                         Forms\Components\TextInput::make('user_name')
                             ->required()
-                            ->maxLength(255)
+                            ->maxLength(50)
                             ->label('Name / الاسم'),
                     ])->columns(2),
 

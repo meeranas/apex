@@ -57,7 +57,7 @@ class CustomerResource extends Resource
                         Forms\Components\TextInput::make('customer_name')
                             ->label('Customer Name / اسم العميل')
                             ->required()
-                            ->maxLength(255)
+                            ->maxLength(50)
                             ->unique(Customer::class, 'customer_name', ignoreRecord: true)
                             ->validationMessages([
                                 'unique' => 'A customer with this name already exists. Please use a different customer name. / يوجد عميل بهذا الاسم مسبقاً. يرجى استخدام اسم مختلف.',
@@ -66,7 +66,7 @@ class CustomerResource extends Resource
                             ->label('Account Number / رقم الحساب')
                             ->required()
                             ->unique(Customer::class, 'account_number', ignoreRecord: true)
-                            ->maxLength(255)
+                            ->maxLength(50)
                             ->validationMessages([
                                 'unique' => 'A customer with this account number already exists. Please use a different account number. / يوجد عميل برقم الحساب هذا مسبقاً. يرجى استخدام رقم حساب مختلف.',
                             ]),
@@ -91,7 +91,7 @@ class CustomerResource extends Resource
                         Forms\Components\TextInput::make('representative_name')
                             ->label('Representative Name / اسم المسؤول')
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(50),
                         Forms\Components\TextInput::make('mobile_number')
                             ->label('Mobile Number / رقم الجوال')
                             ->required()
