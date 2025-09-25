@@ -310,7 +310,7 @@
                         <table class="summary-table" style="border: 1px solid #d1d5db;">
                             <tr>
                                 <td class="label-cell" style="border: 1px solid #d1d5db;">
-                                    <span class="english-label">Current Balances</span>
+                                    <span class="english-label">Current Balances</span><br>
                                     <span class="arabic-label arabic-text">أجمالي الأرصدة</span>
                                 </td>
                                 <td class="value-cell red-value" style="border: 1px solid #d1d5db;">
@@ -319,7 +319,7 @@
                             </tr>
                             <tr>
                                 <td class="label-cell" style="border: 1px solid #d1d5db;">
-                                    <span class="english-label">Remaining Balance</span>
+                                    <span class="english-label">Remaining Balance</span><br>
                                     <span class="arabic-label arabic-text">الأرصدة المتبقية</span>
                                 </td>
                                 <td class="value-cell red-value" style="border: 1px solid #d1d5db;">
@@ -328,7 +328,7 @@
                             </tr>
                             <tr>
                                 <td class="label-cell" style="border: 1px solid #d1d5db;">
-                                    <span class="english-label">% of Payments</span>
+                                    <span class="english-label">% of Payments</span><br>
                                     <span class="arabic-label arabic-text">نسبة المدفوع</span>
                                 </td>
                                 <td class="value-cell red-value" style="border: 1px solid #d1d5db;">
@@ -343,7 +343,7 @@
                         <table class="summary-table" style="border: 1px solid #f3f4f6;">
                             <tr>
                                 <td class="label-cell-white" style="border: 1px solid #f3f4f6;">
-                                    <span class="english-label">Overall Debit</span>
+                                    <span class="english-label">Overall Debit</span><br>
                                     <span class="arabic-label arabic-text">أجمالي التحصيل</span>
                                 </td>
                                 <td class="value-cell-white gray-value" style="border: 1px solid #f3f4f6;">
@@ -352,7 +352,7 @@
                             </tr>
                             <tr>
                                 <td class="label-cell-white" style="border: 1px solid #f3f4f6;">
-                                    <span class="english-label">Overall Discount</span>
+                                    <span class="english-label">Overall Discount</span><br>
                                     <span class="arabic-label arabic-text">أجمالي الخصم</span>
                                 </td>
                                 <td class="value-cell-white gray-value" style="border: 1px solid #f3f4f6;">
@@ -361,7 +361,7 @@
                             </tr>
                             <tr>
                                 <td class="label-cell-white" style="border: 1px solid #f3f4f6;">
-                                    <span class="english-label">Overall Return</span>
+                                    <span class="english-label">Overall Return</span><br>
                                     <span class="arabic-label arabic-text">أجمالي المرتجع</span>
                                 </td>
                                 <td class="value-cell-white gray-value" style="border: 1px solid #f3f4f6;">
